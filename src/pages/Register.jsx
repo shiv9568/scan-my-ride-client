@@ -2,7 +2,8 @@ import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { Car, Lock, Mail, User, ArrowRight } from 'lucide-react';
+import { Lock, Mail, User, ArrowRight } from 'lucide-react';
+import Logo from '../components/Logo';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -33,10 +34,8 @@ const Register = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-brand mb-6 shadow-[0_15px_40px_-10px_rgba(244,176,11,0.5)]">
-                        <Car className="text-black w-10 h-10" />
-                    </div>
+                <div className="flex flex-col items-center mb-10">
+                    <Logo className="w-24 h-24 mb-6" iconOnly={true} />
                     <h1 className="text-4xl font-black text-white tracking-tight uppercase leading-none">JOIN THE <span className="text-brand">FLEET</span></h1>
                     <p className="text-zinc-500 mt-3 font-bold uppercase tracking-widest text-xs italic">Establish Your Digital Identity</p>
                 </div>

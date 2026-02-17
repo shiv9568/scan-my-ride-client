@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Logo from '../components/Logo';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -59,12 +60,7 @@ const PublicProfile = () => {
 
                 {/* Brand Overlay */}
                 <div className="absolute top-8 left-8 z-30">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-[var(--theme-brand)] rounded-lg flex items-center justify-center">
-                            <Droplets size={16} className="text-black fill-current" />
-                        </div>
-                        <span className="font-black tracking-tighter text-xl">SCANMY<span className="text-[var(--theme-brand)]">RIDE</span></span>
-                    </div>
+                    <Logo className="w-8 h-8" />
                 </div>
 
                 <div className="absolute bottom-10 left-8 z-30">

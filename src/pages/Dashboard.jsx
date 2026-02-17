@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import Logo from '../components/Logo';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
@@ -226,11 +227,8 @@ const Dashboard = () => {
             {/* Navbar */}
             <nav className="sticky top-0 z-50 glass border-b border-white/5 px-4 sm:px-6 py-4 flex items-center justify-between backdrop-blur-md">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(244,176,11,0.4)] flex-shrink-0">
-                        <LayoutDashboard size={22} className="text-black" />
-                    </div>
+                    <Logo className="w-10 h-10" />
                     <div className="hidden xs:block">
-                        <span className="font-black text-lg sm:text-xl tracking-tighter block leading-none">SCANMY<span className="text-brand">RIDE</span></span>
                         <span className="text-[8px] sm:text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase">Control Center</span>
                     </div>
                 </div>
