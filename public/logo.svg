@@ -1,0 +1,18 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Shield/Hexagon -->
+  <rect x="20" y="20" width="160" height="160" rx="40" fill="#f4b00b" />
+  
+  <!-- Stylized Car Silhouette -->
+  <path d="M50 110C50 110 55 90 90 85C125 80 145 105 155 110L160 135H45L50 110Z" fill="black" />
+  <rect x="45" y="130" width="115" height="4" rx="2" fill="black" />
+  
+  <!-- Scan Beam -->
+  <rect x="30" y="118" width="140" height="2" fill="#f4b00b" opacity="0.8">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinity" />
+    <animate attributeName="y" values="100;140;100" dur="3s" repeatCount="indefinity" />
+  </rect>
+  
+  <!-- Detail accents -->
+  <circle cx="70" cy="135" r="8" fill="#f4b00b" stroke="black" stroke-width="3" />
+  <circle cx="130" cy="135" r="8" fill="#f4b00b" stroke="black" stroke-width="3" />
+</svg>

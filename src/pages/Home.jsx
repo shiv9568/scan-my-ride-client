@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Car, QrCode, Shield, Zap, ArrowRight, Smartphone } from 'lucide-react';
+import Logo from '../components/Logo';
 
 const Home = () => {
     return (
@@ -11,12 +12,7 @@ const Home = () => {
             <div className="absolute bottom-[20%] right-[-10%] w-[40%] h-[40%] bg-brand/5 blur-[120px] rounded-full" />
 
             <nav className="relative z-10 px-8 py-8 flex items-center justify-between max-w-7xl mx-auto">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-brand rounded-2xl flex items-center justify-center shadow-[0_10px_30px_-5px_rgba(244,176,11,0.4)]">
-                        <Car size={28} className="text-black fill-current" />
-                    </div>
-                    <span className="font-black text-2xl tracking-tighter uppercase">SCANMY<span className="text-brand">RIDE</span></span>
-                </div>
+                <Logo />
                 <div className="flex items-center gap-8">
                     <Link to="/login" className="font-black text-xs uppercase tracking-[0.2em] text-zinc-500 hover:text-brand transition-colors">Login</Link>
                     <Link to="/register" className="bg-brand text-black px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-[0_15px_30px_-10px_rgba(244,176,11,0.3)]">Join Fleet</Link>
