@@ -39,7 +39,7 @@ const Login = () => {
                     <p className="text-zinc-500 mt-3 font-bold uppercase tracking-widest text-xs italic">Digital Car Identity System</p>
                 </div>
 
-                <div className="glass-card rounded-[3rem] p-10 border-t border-white/5 relative overflow-hidden">
+                <div className="glass-card rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-10 border-t border-white/5 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-[2px] bg-brand/30"></div>
 
                     {error && (

@@ -70,7 +70,7 @@ const PublicProfile = () => {
                         transition={{ delay: 0.5 }}
                     >
                         <div className="flex items-center gap-2 mb-2">
-                            <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">
                                 {profile.carName}
                             </h1>
                             {profile.isVerified && (
@@ -91,7 +91,7 @@ const PublicProfile = () => {
                 </div>
             </div>
 
-            <main className="px-6 pb-20 relative z-20 max-w-lg mx-auto">
+            <main className="px-4 sm:px-6 pb-20 relative z-20 max-w-lg mx-auto">
                 {/* Emergency Mode Alert */}
                 {profile.emergencyMode && (
                     <motion.div
@@ -112,9 +112,9 @@ const PublicProfile = () => {
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.7 }}
-                    className="bg-[var(--theme-card)] backdrop-blur-xl rounded-[2.5rem] p-8 mb-8 border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)]"
+                    className="bg-[var(--theme-card)] backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 mb-8 border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)]"
                 >
-                    <div className="flex items-center gap-6 mb-10">
+                    <div className="flex items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
                         <div className="w-20 h-20 rounded-3xl bg-brand p-[2px] shadow-[0_10px_30px_rgba(244,176,11,0.3)] overflow-hidden">
                             {profile.profileImage ? (
                                 <img
@@ -141,22 +141,22 @@ const PublicProfile = () => {
                         {profile.showPhone && (
                             <a
                                 href={`tel:${profile.phoneNumber}`}
-                                className="w-full py-5 rounded-2xl bg-[var(--theme-brand)] text-black hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 font-black text-xl shadow-[0_15px_30px_-10px_var(--theme-glow)]"
+                                className="w-full py-4 sm:py-5 rounded-2xl bg-[var(--theme-brand)] text-black hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 font-black text-lg sm:text-xl shadow-[0_15px_30px_-10px_var(--theme-glow)]"
                             >
-                                <Phone size={24} className="fill-current" />
+                                <Phone size={20} className="fill-current" />
                                 CALL OWNER
                             </a>
                         )}
 
-                        <div className="flex gap-4">
+                        <div className="flex gap-3 sm:gap-4">
                             {profile.instagram && (
-                                <a href={`https://instagram.com/${profile.instagram}`} target="_blank" className="flex-1 py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
-                                    <Instagram size={24} className="text-[var(--theme-brand)]" />
+                                <a href={`https://instagram.com/${profile.instagram}`} target="_blank" className="flex-1 py-4 sm:py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
+                                    <Instagram size={20} className="text-[var(--theme-brand)]" />
                                 </a>
                             )}
                             {profile.linkedin && (
-                                <a href={`https://linkedin.com/in/${profile.linkedin}`} target="_blank" className="flex-1 py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
-                                    <Linkedin size={24} className="text-[var(--theme-brand)]" />
+                                <a href={`https://linkedin.com/in/${profile.linkedin}`} target="_blank" className="flex-1 py-4 sm:py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
+                                    <Linkedin size={20} className="text-[var(--theme-brand)]" />
                                 </a>
                             )}
                         </div>

@@ -258,12 +258,12 @@ const Dashboard = () => {
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="glass-card rounded-[2.5rem] p-10 text-center relative overflow-hidden group"
+                            className="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 text-center relative overflow-hidden group"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-brand shadow-[0_0_15px_rgba(244,176,11,0.5)]"></div>
                             <h3 className="text-xl font-black mb-8 tracking-tight">YOUR SMART <span className="text-brand">IDENTITY</span></h3>
 
-                            <div className="bg-white p-6 rounded-3xl inline-block mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] transition-transform group-hover:scale-105 duration-500">
+                            <div className="bg-white p-4 sm:p-6 rounded-3xl inline-block mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] transition-transform group-hover:scale-105 duration-500">
                                 {profile.uniqueId ? (
                                     <QRCode
                                         id="qr-code-svg"
@@ -358,10 +358,10 @@ const Dashboard = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             onSubmit={handleSubmit}
-                            className="glass-card rounded-[2.5rem] p-10 space-y-12"
+                            className="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 space-y-8 sm:space-y-12"
                         >
                             {/* Images Section */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 mb-8 sm:mb-10">
                                 {/* Profile Image */}
                                 <div className="flex flex-col items-center relative">
                                     <div className="relative group w-40 h-40 rounded-full overflow-hidden border-4 border-zinc-800 bg-zinc-900 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all hover:border-brand">
@@ -537,7 +537,7 @@ const Dashboard = () => {
                                     </div>
                                     <h2 className="text-lg font-black uppercase tracking-widest text-zinc-300">Performance & Mods</h2>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-zinc-950/30 p-8 rounded-[2.5rem] border border-white/5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-zinc-950/30 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5">
                                     <div className="group space-y-3">
                                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Engine Type</label>
                                         <input
@@ -593,7 +593,7 @@ const Dashboard = () => {
                             </section>
 
                             {/* Pro Theme Engine */}
-                            <section className="bg-zinc-950/50 p-8 rounded-[3rem] border border-brand/20 shadow-[0_0_40px_rgba(244,176,11,0.05)]">
+                            <section className="bg-zinc-950/50 p-6 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-brand/20 shadow-[0_0_40px_rgba(244,176,11,0.05)]">
                                 <div className="flex items-center justify-between mb-8">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
@@ -607,7 +607,7 @@ const Dashboard = () => {
                                     <div className="px-3 py-1 rounded-full bg-brand text-black text-[10px] font-black uppercase tracking-widest">PRO UNLOCKED</div>
                                 </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-4">
                                     {[
                                         { id: 'carbon', name: 'CARBON', colors: ['#000', '#f4b00b'] },
                                         { id: 'neon', name: 'NEON', colors: ['#050505', '#00f2ff'] },
@@ -635,7 +635,7 @@ const Dashboard = () => {
                             </section>
 
                             {/* Visibility Toggles */}
-                            <section className="bg-zinc-950/50 p-8 rounded-[2rem] border border-white/5">
+                            <section className="bg-zinc-950/50 p-6 sm:p-8 rounded-[2rem] border border-white/5">
                                 <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-8 text-center italic">Privacy & Security Guard</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <label className="flex items-center justify-between p-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/5 cursor-pointer transition-all group overflow-hidden relative">

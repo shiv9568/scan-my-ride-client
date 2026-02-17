@@ -11,15 +11,15 @@ const Home = () => {
             <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] bg-brand/5 blur-[120px] rounded-full" />
             <div className="absolute bottom-[20%] right-[-10%] w-[40%] h-[40%] bg-brand/5 blur-[120px] rounded-full" />
 
-            <nav className="relative z-10 px-8 py-8 flex items-center justify-between max-w-7xl mx-auto">
+            <nav className="relative z-10 px-4 sm:px-8 py-6 sm:py-8 flex items-center justify-between max-w-7xl mx-auto">
                 <Logo />
-                <div className="flex items-center gap-8">
-                    <Link to="/login" className="font-black text-xs uppercase tracking-[0.2em] text-zinc-500 hover:text-brand transition-colors">Login</Link>
-                    <Link to="/register" className="bg-brand text-black px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-[0_15px_30px_-10px_rgba(244,176,11,0.3)]">Join Fleet</Link>
+                <div className="flex items-center gap-4 sm:gap-8">
+                    <Link to="/login" className="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-zinc-500 hover:text-brand transition-colors">Login</Link>
+                    <Link to="/register" className="bg-brand text-black px-4 sm:px-8 py-2.5 sm:py-3 rounded-full font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-[0_15px_30px_-10px_rgba(244,176,11,0.3)]">Join Fleet</Link>
                 </div>
             </nav>
 
-            <main className="relative z-10 max-w-7xl mx-auto px-8 pt-24 pb-32">
+            <main className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 pt-12 sm:pt-24 pb-32">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -29,7 +29,7 @@ const Home = () => {
                         <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-zinc-900 border border-white/5 text-brand font-black text-[10px] uppercase tracking-[0.2em] mb-10">
                             <Zap size={14} className="animate-pulse" /> Verified System 2.0
                         </div>
-                        <h1 className="text-7xl lg:text-9xl font-black tracking-tighter leading-[0.85] mb-12 uppercase">
+                        <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.85] mb-8 sm:mb-12 uppercase">
                             Digital <br />
                             <span className="text-brand">Identity</span> <br />
                             System.
@@ -37,9 +37,9 @@ const Home = () => {
                         <p className="text-xl text-zinc-500 font-bold max-w-lg mb-12 leading-relaxed uppercase tracking-tighter italic">
                             The ultimate digital connection for your vehicle. Establish your presence, secure your ride, and connect instantly.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-6">
-                            <Link to="/register" className="bg-brand hover:bg-white text-black px-10 py-6 rounded-[2rem] font-black text-xl shadow-[0_20px_40px_-15px_rgba(244,176,11,0.4)] flex items-center justify-center gap-4 transition-all group">
-                                GET STARTED <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                            <Link to="/register" className="bg-brand hover:bg-white text-black px-8 sm:px-10 py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] font-black text-lg sm:text-xl shadow-[0_20px_40px_-15px_rgba(244,176,11,0.4)] flex items-center justify-center gap-4 transition-all group">
+                                GET STARTED <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                             </Link>
                         </div>
                     </motion.div>
@@ -101,13 +101,10 @@ const Home = () => {
                 </div>
             </main>
 
-            <footer className="relative z-10 border-t border-white/5 bg-zinc-950/50 backdrop-blur-xl py-20">
+            <footer className="relative z-10 border-t border-white/5 bg-zinc-950/50 backdrop-blur-xl py-16 sm:py-20">
                 <div className="max-w-7xl mx-auto px-8 flex flex-col items-center">
-                    <div className="flex items-center gap-2 mb-8 opacity-50">
-                        <Car size={20} />
-                        <span className="font-black text-sm tracking-widest uppercase">SCANMYRIDE</span>
-                    </div>
-                    <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.5em]">Advancing Vehicle Connectivity Since 2024</p>
+                    <Logo className="mb-8 opacity-50 grayscale hover:grayscale-0 transition-all scale-75 sm:scale-90" />
+                    <p className="text-zinc-600 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] text-center">Advancing Vehicle Connectivity Since 2024</p>
                 </div>
             </footer>
         </div>
@@ -115,7 +112,7 @@ const Home = () => {
 };
 
 const FeatureCard = ({ icon, title, desc }) => (
-    <div className="glass-card p-10 rounded-[3rem] border-t border-white/5 hover:border-brand/20 transition-all group overflow-hidden relative">
+    <div className="glass-card p-8 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] border-t border-white/5 hover:border-brand/20 transition-all group overflow-hidden relative">
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand/5 blur-3xl group-hover:bg-brand/10 transition-colors" />
         <div className="w-16 h-16 bg-zinc-950 border border-white/5 rounded-[1.5rem] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
             {icon}
