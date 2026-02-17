@@ -11,7 +11,7 @@ const PublicProfile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.29.115:5000';
+    const API_URL = import.meta.env.VITE_API_URL || '';
 
     useEffect(() => {
         const fetchProfile = async () => {

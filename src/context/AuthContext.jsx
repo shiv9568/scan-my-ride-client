@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, [token]);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.29.115:5000';
+    const API_URL = import.meta.env.VITE_API_URL || '';
 
     const login = async (email, password) => {
         const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
