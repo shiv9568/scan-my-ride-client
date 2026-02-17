@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import Logo from '../components/Logo';
 import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
+import api, { API_URL } from '../api/axios';
 import QRCode from 'react-qr-code';
 import { motion } from 'framer-motion';
 import {
@@ -48,15 +48,16 @@ const Dashboard = () => {
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
 
-    const API_URL = import.meta.env.VITE_API_URL || '';
-
     useEffect(() => {
         const fetchProfiles = async () => {
             try {
-                const res = await axios.get(`${API_URL}/api/profile/me`);
+                const res = await api.get('/api/profile/me');
                 if (res.data.length > 0) {
                     setProfiles(res.data);
-                    setProfile(res.data[0]);
+                    const p = res.data[0];
+                    setProfile(p);
+                    if (p.profileImage) setPreview(p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`);
+                    if (p.carImage) setCarPreview(p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`);
                 }
                 setLoading(false);
             } catch (err) {
@@ -70,16 +71,8 @@ const Dashboard = () => {
         setActiveProfileIndex(index);
         const p = profiles[index];
         setProfile(p);
-        if (p.profileImage) {
-            setPreview(`${API_URL}/${p.profileImage}`);
-        } else {
-            setPreview(null);
-        }
-        if (p.carImage) {
-            setCarPreview(`${API_URL}/${p.carImage}`);
-        } else {
-            setCarPreview(null);
-        }
+        setPreview(p.profileImage ? (p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`) : null);
+        setCarPreview(p.carImage ? (p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`) : null);
     };
 
     const addNewCar = () => {
@@ -172,14 +165,14 @@ const Dashboard = () => {
         }
 
         try {
-            const res = await axios.post(`${API_URL}/api/profile`, formData, {
+            const res = await api.post('/api/profile', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
             // Refresh profiles list
-            const refreshRes = await axios.get(`${API_URL}/api/profile/me`);
+            const refreshRes = await api.get('/api/profile/me');
             setProfiles(refreshRes.data);
 
             // Find the updated profile in the new list
@@ -313,7 +306,7 @@ const Dashboard = () => {
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
                                                 {p.carImage ? (
-                                                    <img src={`${API_URL}/${p.carImage}`} className="w-full h-full object-cover" alt="" />
+                                                    <img src={p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`} className="w-full h-full object-cover" alt="" />
                                                 ) : <Car size={18} />}
                                             </div>
                                             <div className="text-left">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Logo from '../components/Logo';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import api, { API_URL } from '../api/axios';
 import { motion } from 'framer-motion';
 import { Phone, User, Briefcase, Instagram, Linkedin, MapPin, AlertCircle, Droplets, ChevronRight, QrCode, ShieldCheck, Gauge, Zap, Cog, Play, Youtube } from 'lucide-react';
 
@@ -11,12 +11,10 @@ const PublicProfile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const API_URL = import.meta.env.VITE_API_URL || '';
-
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const res = await axios.get(`${API_URL}/api/profile/public/${uniqueId}`);
+                const res = await api.get(`/api/profile/public/${uniqueId}`);
                 setProfile(res.data);
                 setLoading(false);
             } catch (err) {
@@ -25,7 +23,7 @@ const PublicProfile = () => {
             }
         };
         fetchProfile();
-    }, [uniqueId, API_URL]);
+    }, [uniqueId]);
 
     if (loading) return (
         <div className="min-h-screen bg-slate-950 flex items-center justify-center">
@@ -150,12 +148,12 @@ const PublicProfile = () => {
 
                         <div className="flex gap-3 sm:gap-4">
                             {profile.instagram && (
-                                <a href={`https://instagram.com/${profile.instagram}`} target="_blank" className="flex-1 py-4 sm:py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
+                                <a href={`https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" className="flex-1 py-4 sm:py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
                                     <Instagram size={20} className="text-[var(--theme-brand)]" />
                                 </a>
                             )}
                             {profile.linkedin && (
-                                <a href={`https://linkedin.com/in/${profile.linkedin}`} target="_blank" className="flex-1 py-4 sm:py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
+                                <a href={`https://linkedin.com/in/${profile.linkedin}`} target="_blank" rel="noreferrer" className="flex-1 py-4 sm:py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
                                     <Linkedin size={20} className="text-[var(--theme-brand)]" />
                                 </a>
                             )}
@@ -207,6 +205,7 @@ const PublicProfile = () => {
                         <a
                             href={profile.youtubeLink}
                             target="_blank"
+                            rel="noreferrer"
                             className="flex items-center justify-between p-6 rounded-3xl bg-red-600/10 border border-red-600/20 group hover:bg-red-600/20 transition-all overflow-hidden relative"
                         >
                             <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 rounded-full blur-3xl -mr-10 -mt-10" />
