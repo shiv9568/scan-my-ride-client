@@ -2,7 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import Logo from '../components/Logo';
 import { AuthContext } from '../context/AuthContext';
 import api, { API_URL } from '../api/axios';
-import QRCode from 'react-qr-code';
+import StylishQR from '../components/StylishQR';
+import { toPng } from 'html-to-image';
 import { motion } from 'framer-motion';
 import {
     Save, LogOut, ExternalLink, Download,
@@ -46,6 +47,7 @@ const Dashboard = () => {
     const [carPreview, setCarPreview] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [downloading, setDownloading] = useState(false);
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
@@ -189,22 +191,26 @@ const Dashboard = () => {
     };
 
     const downloadQR = () => {
-        const svg = document.getElementById("qr-code-svg");
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            const pngFile = canvas.toDataURL("image/png");
-            const downloadLink = document.createElement("a");
-            downloadLink.download = `ScanMyRide-QR-${profile.uniqueId}.png`;
-            downloadLink.href = `${pngFile}`;
-            downloadLink.click();
-        };
-        img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+        const node = document.getElementById('sticker-download-hub');
+        if (!node) return;
+        setDownloading(true);
+
+        toPng(node, {
+            quality: 1,
+            pixelRatio: 4,
+            backgroundColor: null // Keep transparency
+        })
+            .then((dataUrl) => {
+                const link = document.createElement('a');
+                link.download = `ScanMyRide-Sticker-${profile.uniqueId}.png`;
+                link.href = dataUrl;
+                link.click();
+                setDownloading(false);
+            })
+            .catch((err) => {
+                console.error('oops, something went wrong!', err);
+                setDownloading(false);
+            });
     };
 
     if (loading) return (
@@ -256,18 +262,25 @@ const Dashboard = () => {
                             <div className="absolute top-0 left-0 w-full h-1 bg-brand shadow-[0_0_15px_rgba(244,176,11,0.5)]"></div>
                             <h3 className="text-xl font-black mb-8 tracking-tight">YOUR SMART <span className="text-brand">IDENTITY</span></h3>
 
-                            <div className="bg-white p-4 sm:p-6 rounded-3xl inline-block mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] transition-transform group-hover:scale-105 duration-500">
+                            <div className="mb-10 scale-90 sm:scale-100 transition-transform hover:rotate-1">
                                 {profile.uniqueId ? (
-                                    <QRCode
-                                        id="qr-code-svg"
-                                        value={publicUrl}
-                                        size={220}
-                                        fgColor="#000000"
-                                        level="H"
-                                    />
+                                    <>
+                                        <StylishQR
+                                            id="stylish-sticker"
+                                            value={publicUrl}
+                                        />
+                                        {/* Hidden high-res version for export only */}
+                                        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+                                            <StylishQR
+                                                id="sticker-download-hub"
+                                                value={publicUrl}
+                                                isForDownload={true}
+                                            />
+                                        </div>
+                                    </>
                                 ) : (
-                                    <div className="w-[220px] h-[220px] bg-zinc-100 flex items-center justify-center text-zinc-400 text-sm font-bold px-10 text-center">
-                                        Complete profile to generate QR
+                                    <div className="w-[300px] h-[380px] bg-zinc-900/50 border-2 border-dashed border-zinc-800 rounded-[3rem] flex items-center justify-center text-zinc-600 text-sm font-black px-12 text-center uppercase tracking-widest mx-auto">
+                                        Fill identity to<br />Generate Sticker
                                     </div>
                                 )}
                             </div>
@@ -276,9 +289,11 @@ const Dashboard = () => {
                                 <div className="space-y-4">
                                     <button
                                         onClick={downloadQR}
-                                        className="w-full py-4 rounded-2xl bg-brand text-black font-black flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_10px_20px_-10px_rgba(244,176,11,0.5)]"
+                                        disabled={downloading}
+                                        className="w-full py-4 rounded-2xl bg-brand text-black font-black flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_10px_20px_-10px_rgba(244,176,11,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <Download size={20} /> DOWNLOAD QR
+                                        <Download size={20} className={downloading ? 'animate-bounce' : ''} />
+                                        {downloading ? 'GENERATING PRINT-READY IMAGE...' : 'DOWNLOAD PREMIUM STICKER'}
                                     </button>
                                     <a
                                         href={publicUrl}
