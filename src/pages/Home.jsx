@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Car, QrCode, Shield, Zap, ArrowRight, Smartphone } from 'lucide-react';
 import Logo from '../components/Logo';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Home = () => {
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-brand selection:text-black">
+        <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] selection:bg-brand selection:text-black">
             {/* Background elements */}
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full bg-black z-0 border-x border-white/5" />
             <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] bg-brand/5 blur-[120px] rounded-full" />
@@ -14,6 +15,7 @@ const Home = () => {
             <nav className="relative z-10 px-4 sm:px-8 py-6 sm:py-8 flex items-center justify-between max-w-7xl mx-auto">
                 <Logo />
                 <div className="flex items-center gap-4 sm:gap-8">
+                    <ThemeToggle />
                     <Link to="/login" className="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-zinc-500 hover:text-brand transition-colors">Login</Link>
                     <Link to="/register" className="bg-brand text-black px-4 sm:px-8 py-2.5 sm:py-3 rounded-full font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-[0_15px_30px_-10px_rgba(244,176,11,0.3)]">Join Fleet</Link>
                 </div>

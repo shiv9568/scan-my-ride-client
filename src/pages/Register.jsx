@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Lock, Mail, User, ArrowRight } from 'lucide-react';
 import Logo from '../components/Logo';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -24,7 +25,10 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-6 relative overflow-hidden">
+            <div className="absolute top-8 right-8 z-50">
+                <ThemeToggle />
+            </div>
             {/* Background Decorations */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand/5 blur-[120px] rounded-full" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand/5 blur-[120px] rounded-full" />
@@ -36,7 +40,7 @@ const Register = () => {
             >
                 <div className="flex flex-col items-center mb-10">
                     <Logo className="w-24 h-24 mb-6" iconOnly={true} />
-                    <h1 className="text-4xl font-black text-white tracking-tight uppercase leading-none">JOIN THE <span className="text-brand">FLEET</span></h1>
+                    <h1 className="text-4xl font-black text-[var(--text-color)] tracking-tight uppercase leading-none">JOIN THE <span className="text-brand">FLEET</span></h1>
                     <p className="text-zinc-500 mt-3 font-bold uppercase tracking-widest text-xs italic">Establish Your Digital Identity</p>
                 </div>
 
@@ -58,7 +62,7 @@ const Register = () => {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-zinc-900 border border-white/5 rounded-2xl py-5 pl-14 pr-5 text-white focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
+                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl py-5 pl-14 pr-5 text-[var(--text-color)] focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
                                     placeholder="John Doe"
                                     required
                                 />
@@ -73,7 +77,7 @@ const Register = () => {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-zinc-900 border border-white/5 rounded-2xl py-5 pl-14 pr-5 text-white focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
+                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl py-5 pl-14 pr-5 text-[var(--text-color)] focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
                                     placeholder="commander@scanmyride.com"
                                     required
                                 />
@@ -88,7 +92,7 @@ const Register = () => {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-zinc-900 border border-white/5 rounded-2xl py-5 pl-14 pr-5 text-white focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
+                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl py-5 pl-14 pr-5 text-[var(--text-color)] focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
                                     placeholder="••••••••"
                                     required
                                 />

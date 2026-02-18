@@ -54,6 +54,9 @@ const PublicProfile = () => {
                     src={profile.carImage ? (profile.carImage.startsWith('http') ? profile.carImage : `${API_URL}/${profile.carImage}`) : 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80'}
                     className="w-full h-full object-cover opacity-60"
                     alt="Car"
+                    onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80';
+                    }}
                 />
 
                 {/* Brand Overlay */}
@@ -116,9 +119,12 @@ const PublicProfile = () => {
                         <div className="w-20 h-20 rounded-3xl bg-brand p-[2px] shadow-[0_10px_30px_rgba(244,176,11,0.3)] overflow-hidden">
                             {profile.profileImage ? (
                                 <img
-                                    src={`${API_URL}/${profile.profileImage}`}
+                                    src={profile.profileImage.startsWith('http') ? profile.profileImage : `${API_URL}/${profile.profileImage}`}
                                     className="w-full h-full object-cover rounded-[1.4rem]"
                                     alt={profile.ownerName}
+                                    onError={(e) => {
+                                        e.target.src = 'https://ui-avatars.com/api/?name=' + profile.ownerName + '&background=000&color=f4b00b&bold=true';
+                                    }}
                                 />
                             ) : (
                                 <div className="w-full h-full rounded-[1.4rem] bg-black flex items-center justify-center">

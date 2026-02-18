@@ -3,8 +3,10 @@ import Logo from '../components/Logo';
 import { AuthContext } from '../context/AuthContext';
 import api, { API_URL } from '../api/axios';
 import StylishQR from '../components/StylishQR';
+import ThemeToggle from '../components/ThemeToggle';
 import { toPng } from 'html-to-image';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
     Save, LogOut, ExternalLink, Download,
     Smartphone, User, Briefcase, MapPin,
@@ -14,7 +16,7 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
-    const { logout } = useContext(AuthContext);
+    const { logout, user } = useContext(AuthContext);
     const [profiles, setProfiles] = useState([]);
     const [activeProfileIndex, setActiveProfileIndex] = useState(0);
     const [profile, setProfile] = useState({
@@ -56,10 +58,24 @@ const Dashboard = () => {
                 const res = await api.get('/api/profile/me');
                 if (res.data.length > 0) {
                     setProfiles(res.data);
-                    const p = res.data[0];
+
+                    // Try to restore last active profile
+                    const lastUniqueId = localStorage.getItem('lastProfileId');
+                    const lastIndex = res.data.findIndex(p => p.uniqueId === lastUniqueId);
+
+                    const targetIndex = lastIndex !== -1 ? lastIndex : 0;
+                    setActiveProfileIndex(targetIndex);
+                    const p = res.data[targetIndex];
                     setProfile(p);
-                    if (p.profileImage) setPreview(p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`);
-                    if (p.carImage) setCarPreview(p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`);
+
+                    if (p.profileImage) {
+                        const imgUrl = p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`;
+                        setPreview(imgUrl);
+                    }
+                    if (p.carImage) {
+                        const imgUrl = p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`;
+                        setCarPreview(imgUrl);
+                    }
                 }
                 setLoading(false);
             } catch (err) {
@@ -73,6 +89,7 @@ const Dashboard = () => {
         setActiveProfileIndex(index);
         const p = profiles[index];
         setProfile(p);
+        localStorage.setItem('lastProfileId', p.uniqueId);
         setPreview(p.profileImage ? (p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`) : null);
         setCarPreview(p.carImage ? (p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`) : null);
     };
@@ -219,10 +236,10 @@ const Dashboard = () => {
         </div>
     );
 
-    const publicUrl = `${window.location.origin}/p/${profile.uniqueId}`;
+    const publicUrl = `${import.meta.env.VITE_FRONTEND_URL || window.location.origin}/p/${profile.uniqueId}`;
 
     return (
-        <div className="min-h-screen bg-black text-white pb-12">
+        <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] pb-12 transition-colors duration-300">
             {/* Navbar */}
             <nav className="sticky top-0 z-50 glass border-b border-white/5 px-4 sm:px-6 py-4 flex items-center justify-between backdrop-blur-md">
                 <div className="flex items-center gap-3">
@@ -232,6 +249,16 @@ const Dashboard = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
+                    <ThemeToggle />
+                    {user?.role === 'admin' && (
+                        <Link
+                            to="/admin"
+                            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 transition-all border border-purple-600/30 font-bold text-sm"
+                            title="Admin Panel"
+                        >
+                            <ShieldCheck size={16} /> <span className="hidden sm:inline">Admin Panel</span>
+                        </Link>
+                    )}
                     <button
                         onClick={addNewCar}
                         className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-brand text-black hover:scale-105 transition-all font-black text-sm shadow-[0_0_20px_rgba(244,176,11,0.3)]"

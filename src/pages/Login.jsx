@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
 import Logo from '../components/Logo';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -23,7 +24,10 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-6 relative overflow-hidden">
+            <div className="absolute top-8 right-8 z-50">
+                <ThemeToggle />
+            </div>
             {/* Background Decorations */}
             <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand/5 blur-[120px] rounded-full" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand/5 blur-[120px] rounded-full" />
@@ -35,7 +39,7 @@ const Login = () => {
             >
                 <div className="flex flex-col items-center mb-12">
                     <Logo className="w-24 h-24 mb-6" iconOnly={true} />
-                    <h1 className="text-4xl font-black text-white tracking-tight uppercase leading-none">SCANMY<span className="text-brand">RIDE</span></h1>
+                    <h1 className="text-4xl font-black text-[var(--text-color)] tracking-tight uppercase leading-none">SCANMY<span className="text-brand">RIDE</span></h1>
                     <p className="text-zinc-500 mt-3 font-bold uppercase tracking-widest text-xs italic">Digital Car Identity System</p>
                 </div>
 
@@ -57,7 +61,7 @@ const Login = () => {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-zinc-900 border border-white/5 rounded-2xl py-5 pl-14 pr-5 text-white focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
+                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl py-5 pl-14 pr-5 text-[var(--text-color)] focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
                                     placeholder="commander@scanmyride.com"
                                     required
                                 />
@@ -72,7 +76,7 @@ const Login = () => {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-zinc-900 border border-white/5 rounded-2xl py-5 pl-14 pr-5 text-white focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
+                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl py-5 pl-14 pr-5 text-[var(--text-color)] focus:outline-none focus:border-brand/50 focus:ring-4 focus:ring-brand/5 transition-all font-medium"
                                     placeholder="••••••••"
                                     required
                                 />
