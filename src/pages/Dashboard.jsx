@@ -15,8 +15,14 @@ import {
     ShieldCheck
 } from 'lucide-react';
 
+
+
 const Dashboard = () => {
     const { logout, user } = useContext(AuthContext);
+
+
+
+
     const [profiles, setProfiles] = useState([]);
     const [activeProfileIndex, setActiveProfileIndex] = useState(0);
     const [profile, setProfile] = useState({
@@ -32,16 +38,8 @@ const Dashboard = () => {
         isPublic: true,
         showPhone: true,
         emergencyMode: false,
-        themeColor: '#3b82f6',
-        selectedTheme: 'carbon',
         uniqueId: '',
-        specs: {
-            hp: '',
-            torque: '',
-            engine: '',
-            mods: ''
-        },
-        youtubeLink: ''
+        customQrLogo: ''
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -66,7 +64,10 @@ const Dashboard = () => {
                     const targetIndex = lastIndex !== -1 ? lastIndex : 0;
                     setActiveProfileIndex(targetIndex);
                     const p = res.data[targetIndex];
-                    setProfile(p);
+                    setProfile({
+                        ...p,
+                        customQrLogo: p.customQrLogo || ''
+                    });
 
                     if (p.profileImage) {
                         const imgUrl = p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`;
@@ -88,7 +89,10 @@ const Dashboard = () => {
     const switchProfile = (index) => {
         setActiveProfileIndex(index);
         const p = profiles[index];
-        setProfile(p);
+        setProfile({
+            ...p,
+            customQrLogo: p.customQrLogo || ''
+        });
         localStorage.setItem('lastProfileId', p.uniqueId);
         setPreview(p.profileImage ? (p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`) : null);
         setCarPreview(p.carImage ? (p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`) : null);
@@ -110,9 +114,7 @@ const Dashboard = () => {
             emergencyMode: false,
             themeColor: '#3b82f6',
             selectedTheme: 'carbon',
-            uniqueId: '',
-            specs: { hp: '', torque: '', engine: '', mods: '' },
-            youtubeLink: ''
+            uniqueId: ''
         };
         setProfile(newProfile);
         setActiveProfileIndex(-1); // Indicator for new car
@@ -138,16 +140,7 @@ const Dashboard = () => {
         }
     };
 
-    const handleSpecChange = (e) => {
-        const { name, value } = e.target;
-        setProfile(prev => ({
-            ...prev,
-            specs: {
-                ...prev.specs,
-                [name]: value
-            }
-        }));
-    };
+
 
     const handleCarFileChange = (e) => {
         const file = e.target.files[0];
@@ -163,12 +156,11 @@ const Dashboard = () => {
 
         const formData = new FormData();
         Object.keys(profile).forEach(key => {
+            // Skip file objects or specific image fields here, handle explicitly
+            if (['customQrLogo', 'profileImage', 'carImage', 'youtubeLink', 'specs', '_id', '__v'].includes(key)) return;
+
             if (profile[key] !== null) {
-                if (key === 'specs') {
-                    formData.append(key, JSON.stringify(profile[key]));
-                } else {
-                    formData.append(key, profile[key]);
-                }
+                formData.append(key, profile[key]);
             }
         });
 
@@ -181,6 +173,9 @@ const Dashboard = () => {
         }
         if (selectedCarFile) {
             formData.append('carImage', selectedCarFile);
+        }
+        if (profile.customQrLogo && profile.customQrLogo instanceof File) {
+            formData.append('customQrLogo', profile.customQrLogo);
         }
 
         try {
@@ -241,7 +236,7 @@ const Dashboard = () => {
     return (
         <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] pb-12 transition-colors duration-300">
             {/* Navbar */}
-            <nav className="sticky top-0 z-50 glass border-b border-white/5 px-4 sm:px-6 py-4 flex items-center justify-between backdrop-blur-md">
+            <nav className="sticky top-0 z-50 glass border-b border-[var(--card-border)] px-4 sm:px-6 py-4 flex items-center justify-between backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     <Logo className="w-10 h-10" />
                     <div className="hidden xs:block">
@@ -268,7 +263,7 @@ const Dashboard = () => {
                     </button>
                     <button
                         onClick={logout}
-                        className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all border border-white/5 font-bold text-sm"
+                        className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-[var(--input-bg)] hover:bg-[var(--card-bg)] text-[var(--text-color)] opacity-70 hover:opacity-100 transition-all border border-[var(--card-border)] font-bold text-sm"
                         title="Logout"
                     >
                         <LogOut size={16} /> <span className="hidden sm:inline">Logout</span>
@@ -306,7 +301,7 @@ const Dashboard = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-[300px] h-[380px] bg-zinc-900/50 border-2 border-dashed border-zinc-800 rounded-[3rem] flex items-center justify-center text-zinc-600 text-sm font-black px-12 text-center uppercase tracking-widest mx-auto">
+                                    <div className="w-[300px] h-[380px] bg-[var(--input-bg)] border-2 border-dashed border-[var(--card-border)] rounded-[3rem] flex items-center justify-center text-[var(--text-color)] opacity-50 text-sm font-black px-12 text-center uppercase tracking-widest mx-auto">
                                         Fill identity to<br />Generate Sticker
                                     </div>
                                 )}
@@ -326,7 +321,7 @@ const Dashboard = () => {
                                         href={publicUrl}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="w-full py-4 rounded-2xl bg-white/5 text-white hover:bg-white/10 font-black flex items-center justify-center gap-2 transition-all border border-white/10"
+                                        className="w-full py-4 rounded-2xl bg-[var(--input-bg)] text-[var(--text-color)] hover:bg-[var(--card-bg)] font-black flex items-center justify-center gap-2 transition-all border border-[var(--card-border)]"
                                     >
                                         <ExternalLink size={20} /> PREVIEW PAGE
                                     </a>
@@ -343,10 +338,10 @@ const Dashboard = () => {
                                     <button
                                         key={p._id}
                                         onClick={() => switchProfile(idx)}
-                                        className={`w-full p-4 rounded-2xl flex items-center justify-between transition-all border ${activeProfileIndex === idx ? 'bg-brand/10 border-brand/50 text-brand' : 'bg-white/5 border-white/5 text-zinc-400 hover:bg-white/10'}`}
+                                        className={`w-full p-4 rounded-2xl flex items-center justify-between transition-all border ${activeProfileIndex === idx ? 'bg-brand/10 border-brand/50 text-brand' : 'bg-[var(--input-bg)] border-[var(--card-border)] text-[var(--text-color)] opacity-60 hover:opacity-100 hover:bg-[var(--card-bg)]'}`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
+                                            <div className="w-10 h-10 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] flex items-center justify-center overflow-hidden">
                                                 {p.carImage ? (
                                                     <img src={p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`} className="w-full h-full object-cover" alt="" />
                                                 ) : <Car size={18} />}
@@ -363,28 +358,14 @@ const Dashboard = () => {
                                     </button>
                                 ))}
                                 {profiles.length === 0 && (
-                                    <div className="text-center py-6 text-zinc-500 text-[10px] font-black uppercase italic">
+                                    <div className="text-center py-6 text-[var(--text-color)] opacity-50 text-[10px] font-black uppercase italic">
                                         No vehicles in fleet
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        <div className="glass-card rounded-[2.5rem] p-8 border-l-4 border-l-zinc-800">
-                            <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] mb-6">Device Analytics</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
-                                    <div className="text-2xl font-black text-white mb-1 tracking-tighter">{profile.scanCount || 0}</div>
-                                    <div className="text-[8px] text-zinc-500 font-black uppercase tracking-wider">Total Scans</div>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
-                                    <div className="text-[10px] font-black text-green-500 flex items-center gap-1 mb-1 uppercase">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Online
-                                    </div>
-                                    <div className="text-[8px] text-zinc-500 font-black uppercase tracking-wider">System</div>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
 
                     {/* Right Column: Edit Form */}
@@ -399,11 +380,11 @@ const Dashboard = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 mb-8 sm:mb-10">
                                 {/* Profile Image */}
                                 <div className="flex flex-col items-center relative">
-                                    <div className="relative group w-40 h-40 rounded-full overflow-hidden border-4 border-zinc-800 bg-zinc-900 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all hover:border-brand">
+                                    <div className="relative group w-40 h-40 rounded-full overflow-hidden border-4 border-[var(--card-border)] bg-[var(--input-bg)] shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all hover:border-brand">
                                         {preview ? (
                                             <img src={preview} alt="Profile" className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-zinc-700 bg-zinc-900">
+                                            <div className="w-full h-full flex items-center justify-center text-[var(--text-color)] opacity-50 bg-[var(--input-bg)]">
                                                 <Camera size={40} />
                                             </div>
                                         )}
@@ -419,17 +400,17 @@ const Dashboard = () => {
                                     </div>
                                     <div className="mt-4 flex flex-col items-center">
                                         <span className="text-sm font-black text-brand uppercase tracking-widest">Avatar</span>
-                                        <span className="text-[10px] text-zinc-500 font-bold uppercase mt-1 italic">Public Profile Photo</span>
+                                        <span className="text-[10px] text-[var(--text-color)] opacity-60 font-bold uppercase mt-1 italic">Public Profile Photo</span>
                                     </div>
                                 </div>
 
                                 {/* Car Banner Image */}
                                 <div className="flex flex-col items-center relative">
-                                    <div className="relative group w-full h-40 rounded-3xl overflow-hidden border-4 border-zinc-800 bg-zinc-900 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all hover:border-brand">
+                                    <div className="relative group w-full h-40 rounded-3xl overflow-hidden border-4 border-[var(--card-border)] bg-[var(--input-bg)] shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all hover:border-brand">
                                         {carPreview ? (
                                             <img src={carPreview} alt="Car Banner" className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-zinc-700 bg-zinc-900">
+                                            <div className="w-full h-full flex items-center justify-center text-[var(--text-color)] opacity-50 bg-[var(--input-bg)]">
                                                 <Car size={40} />
                                             </div>
                                         )}
@@ -445,7 +426,7 @@ const Dashboard = () => {
                                     </div>
                                     <div className="mt-4 flex flex-col items-center">
                                         <span className="text-sm font-black text-brand uppercase tracking-widest">Car Banner</span>
-                                        <span className="text-[10px] text-zinc-500 font-bold uppercase mt-1 italic">Background Image</span>
+                                        <span className="text-[10px] text-[var(--text-color)] opacity-60 font-bold uppercase mt-1 italic">Background Image</span>
                                     </div>
                                 </div>
                             </div>
@@ -456,49 +437,49 @@ const Dashboard = () => {
                                     <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
                                         <User size={18} className="text-brand" />
                                     </div>
-                                    <h2 className="text-lg font-black uppercase tracking-widest">Car & Owner Identity</h2>
+                                    <h2 className="text-lg font-black uppercase tracking-widest text-[var(--text-color)]">Car & Owner Identity</h2>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Car Identification</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Car Identification</label>
                                         <input
                                             name="carName"
                                             value={profile.carName}
                                             onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+                                            className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
                                             placeholder="e.g. Matte Black Mustang"
                                             required
                                         />
                                     </div>
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Owner Name</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Owner Name</label>
                                         <input
                                             name="ownerName"
                                             value={profile.ownerName}
                                             onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+                                            className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
                                             placeholder="John Doe"
                                             required
                                         />
                                     </div>
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Emergency Contact</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Emergency Contact</label>
                                         <input
                                             name="phoneNumber"
                                             value={profile.phoneNumber}
                                             onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+                                            className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
                                             placeholder="+91 00000 00000"
                                         />
                                     </div>
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Profession</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Profession</label>
                                         <input
                                             name="profession"
                                             value={profile.profession}
                                             onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+                                            className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
                                             placeholder="Business Owner"
                                         />
                                     </div>
@@ -508,42 +489,42 @@ const Dashboard = () => {
                             {/* Additional Info */}
                             <section>
                                 <div className="flex items-center gap-3 mb-8">
-                                    <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
-                                        <MapPin size={18} className="text-zinc-400" />
+                                    <div className="w-8 h-8 rounded-lg bg-[var(--input-bg)] flex items-center justify-center">
+                                        <MapPin size={18} className="text-[var(--text-color)] opacity-50" />
                                     </div>
-                                    <h2 className="text-lg font-black uppercase tracking-widest text-zinc-300">Socials & Health</h2>
+                                    <h2 className="text-lg font-black uppercase tracking-widest text-[var(--text-color)]">Socials & Health</h2>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Instagram Profile</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Instagram Profile</label>
                                         <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 font-bold">@</div>
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-60 font-bold">@</div>
                                             <input
                                                 name="instagram"
                                                 value={profile.instagram}
                                                 onChange={handleChange}
-                                                className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 pl-10 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium"
+                                                className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 pl-10 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-medium"
                                                 placeholder="handle"
                                             />
                                         </div>
                                     </div>
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">LinkedIn ID</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">LinkedIn ID</label>
                                         <input
                                             name="linkedin"
                                             value={profile.linkedin}
                                             onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium"
+                                            className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-medium"
                                             placeholder="username"
                                         />
                                     </div>
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Blood Group</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Blood Group</label>
                                         <select
                                             name="bloodGroup"
                                             value={profile.bloodGroup}
                                             onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-black uppercase appearance-none"
+                                            className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-black uppercase appearance-none"
                                         >
                                             <option value="">Select Group</option>
                                             {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map(bg => (
@@ -552,91 +533,32 @@ const Dashboard = () => {
                                         </select>
                                     </div>
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Home City</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Home City</label>
                                         <input
                                             name="city"
                                             value={profile.city}
                                             onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium"
+                                            className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-medium"
                                             placeholder="City, State"
                                         />
                                     </div>
                                 </div>
                             </section>
 
-                            {/* Performance Specs */}
-                            <section>
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
-                                        <Palette size={18} className="text-brand" />
-                                    </div>
-                                    <h2 className="text-lg font-black uppercase tracking-widest text-zinc-300">Performance & Mods</h2>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-zinc-950/30 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5">
-                                    <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Engine Type</label>
-                                        <input
-                                            name="engine"
-                                            value={profile.specs?.engine}
-                                            onChange={handleSpecChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium"
-                                            placeholder="e.g. 2.0L Turbo I4"
-                                        />
-                                    </div>
-                                    <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Horsepower (HP)</label>
-                                        <input
-                                            name="hp"
-                                            value={profile.specs?.hp}
-                                            onChange={handleSpecChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium"
-                                            placeholder="e.g. 450"
-                                        />
-                                    </div>
-                                    <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Torque (NM)</label>
-                                        <input
-                                            name="torque"
-                                            value={profile.specs?.torque}
-                                            onChange={handleSpecChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium"
-                                            placeholder="e.g. 520"
-                                        />
-                                    </div>
-                                    <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Build Video (YouTube/Reel)</label>
-                                        <input
-                                            name="youtubeLink"
-                                            value={profile.youtubeLink}
-                                            onChange={handleChange}
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium"
-                                            placeholder="https://youtube.com/..."
-                                        />
-                                    </div>
-                                    <div className="md:col-span-2 group space-y-3">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Modifications List</label>
-                                        <textarea
-                                            name="mods"
-                                            value={profile.specs?.mods}
-                                            onChange={handleSpecChange}
-                                            rows="3"
-                                            className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 text-white focus:border-brand/50 focus:bg-zinc-900 transition-all font-medium resize-none"
-                                            placeholder="Stage 2 ECU, Custom Exhaust, Ohlins Suspension..."
-                                        />
-                                    </div>
-                                </div>
-                            </section>
+
+
+
 
                             {/* Pro Theme Engine */}
-                            <section className="bg-zinc-950/50 p-6 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-brand/20 shadow-[0_0_40px_rgba(244,176,11,0.05)]">
+                            <section className="bg-[var(--input-bg)] p-6 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-brand/20 shadow-[0_0_40px_rgba(244,176,11,0.05)]">
                                 <div className="flex items-center justify-between mb-8">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
                                             <Palette size={20} className="text-brand" />
                                         </div>
                                         <div>
-                                            <h2 className="text-lg font-black uppercase tracking-widest text-white">PRO THEME <span className="text-brand">ENGINE</span></h2>
-                                            <p className="text-[10px] text-zinc-500 font-bold uppercase">Personalize your public profile aesthetic</p>
+                                            <h2 className="text-lg font-black uppercase tracking-widest text-[var(--text-color)]">PRO THEME <span className="text-brand">ENGINE</span></h2>
+                                            <p className="text-[10px] text-[var(--text-color)] opacity-60 font-bold uppercase">Personalize your public profile aesthetic</p>
                                         </div>
                                     </div>
                                     <div className="px-3 py-1 rounded-full bg-brand text-black text-[10px] font-black uppercase tracking-widest">PRO UNLOCKED</div>
@@ -647,21 +569,20 @@ const Dashboard = () => {
                                         { id: 'carbon', name: 'CARBON', colors: ['#000', '#f4b00b'] },
                                         { id: 'neon', name: 'NEON', colors: ['#050505', '#00f2ff'] },
                                         { id: 'cyber', name: 'CYBER', colors: ['#0a0a0f', '#ff0055'] },
-                                        { id: 'minimal', name: 'MINIMAL', colors: ['#0f0f0f', '#fff'] },
-                                        { id: 'spec', name: 'SPEC', colors: ['#050505', '#ea580c'] }
+                                        { id: 'minimal', name: 'MINIMAL', colors: ['#0f0f0f', '#fff'] }
                                     ].map(theme => (
                                         <button
                                             key={theme.id}
                                             type="button"
                                             onClick={() => setProfile(prev => ({ ...prev, selectedTheme: theme.id }))}
-                                            className={`relative group p-4 rounded-2xl border transition-all ${profile.selectedTheme === theme.id ? 'border-brand bg-brand/10' : 'border-white/5 bg-zinc-900/50 hover:bg-zinc-900'}`}
+                                            className={`relative group p-4 rounded-2xl border transition-all ${profile.selectedTheme === theme.id ? 'border-brand bg-brand/10' : 'border-[var(--card-border)] bg-[var(--card-bg)] hover:bg-[var(--input-bg)]'}`}
                                         >
                                             <div className="flex flex-col items-center gap-3">
                                                 <div className="w-full h-12 rounded-lg flex gap-1 p-1" style={{ backgroundColor: theme.colors[0] }}>
                                                     <div className="w-1/3 h-full rounded-sm" style={{ backgroundColor: theme.colors[1] }}></div>
                                                     <div className="flex-1 h-full rounded-sm bg-white/5"></div>
                                                 </div>
-                                                <span className={`text-[10px] font-black tracking-widest ${profile.selectedTheme === theme.id ? 'text-brand' : 'text-zinc-500'}`}>{theme.name}</span>
+                                                <span className={`text-[10px] font-black tracking-widest ${profile.selectedTheme === theme.id ? 'text-brand' : 'text-[var(--text-color)] opacity-60'}`}>{theme.name}</span>
                                             </div>
                                             {profile.selectedTheme === theme.id && <div className="absolute -top-1 -right-1 w-4 h-4 bg-brand rounded-full flex items-center justify-center"><div className="w-1.5 h-1.5 bg-black rounded-full"></div></div>}
                                         </button>
@@ -670,18 +591,18 @@ const Dashboard = () => {
                             </section>
 
                             {/* Visibility Toggles */}
-                            <section className="bg-zinc-950/50 p-6 sm:p-8 rounded-[2rem] border border-white/5">
-                                <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-8 text-center italic">Privacy & Security Guard</h3>
+                            <section className="bg-[var(--input-bg)] p-6 sm:p-8 rounded-[2rem] border border-[var(--card-border)]">
+                                <h3 className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.3em] mb-8 text-center italic">Privacy & Security Guard</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/5 cursor-pointer transition-all group overflow-hidden relative">
+                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-[var(--card-bg)] hover:bg-[var(--input-bg)] border border-[var(--card-border)] cursor-pointer transition-all group overflow-hidden relative">
                                         {profile.isPublic && <div className="absolute top-0 left-0 w-1 h-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>}
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${profile.isPublic ? 'bg-green-500/10 text-green-500' : 'bg-zinc-800 text-zinc-500'}`}>
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${profile.isPublic ? 'bg-green-500/10 text-green-500' : 'bg-[var(--input-bg)] text-[var(--text-color)] opacity-50'}`}>
                                                 {profile.isPublic ? <Eye size={20} /> : <EyeOff size={20} />}
                                             </div>
                                             <div>
-                                                <span className="font-black text-sm block uppercase tracking-wider">Public Accessibility</span>
-                                                <span className="text-[10px] text-zinc-500 font-bold uppercase">{profile.isPublic ? 'Everyone can see' : 'QR Is Disabled'}</span>
+                                                <span className="font-black text-sm block uppercase tracking-wider text-[var(--text-color)]">Public Accessibility</span>
+                                                <span className="text-[10px] text-[var(--text-color)] opacity-60 font-bold uppercase">{profile.isPublic ? 'Everyone can see' : 'QR Is Disabled'}</span>
                                             </div>
                                         </div>
                                         <input
@@ -693,15 +614,15 @@ const Dashboard = () => {
                                         />
                                     </label>
 
-                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/5 cursor-pointer transition-all group overflow-hidden relative">
+                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-[var(--card-bg)] hover:bg-[var(--input-bg)] border border-[var(--card-border)] cursor-pointer transition-all group overflow-hidden relative">
                                         {profile.emergencyMode && <div className="absolute top-0 left-0 w-1 h-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>}
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${profile.emergencyMode ? 'bg-red-500/10 text-red-500' : 'bg-zinc-800 text-zinc-500'}`}>
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${profile.emergencyMode ? 'bg-red-500/10 text-red-500' : 'bg-[var(--input-bg)] text-[var(--text-color)] opacity-50'}`}>
                                                 <AlertCircle size={20} className={profile.emergencyMode ? "animate-pulse" : ""} />
                                             </div>
                                             <div>
                                                 <span className="font-black text-sm block uppercase tracking-wider text-red-400">SOS Mode</span>
-                                                <span className="text-[10px] text-zinc-500 font-bold uppercase">{profile.emergencyMode ? 'High Alert Active' : 'Normal Standby'}</span>
+                                                <span className="text-[10px] text-[var(--text-color)] opacity-60 font-bold uppercase">{profile.emergencyMode ? 'High Alert Active' : 'Normal Standby'}</span>
                                             </div>
                                         </div>
                                         <input
@@ -716,10 +637,10 @@ const Dashboard = () => {
                             </section>
 
                             {/* Sticky Footer for Actions */}
-                            <div className="flex items-center justify-between pt-10 border-t border-white/5 mt-4">
+                            <div className="flex items-center justify-between pt-10 border-t border-[var(--card-border)] mt-4">
                                 <div className="hidden sm:block">
-                                    <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Last Modified</div>
-                                    <div className="text-sm font-bold text-zinc-300">{profile.lastScanned ? new Date(profile.lastScanned).toLocaleDateString() : 'New Device'}</div>
+                                    <div className="text-[10px] text-[var(--text-color)] opacity-50 font-black uppercase tracking-widest">Last Modified</div>
+                                    <div className="text-sm font-bold text-[var(--text-color)] opacity-80">{profile.lastScanned ? new Date(profile.lastScanned).toLocaleDateString() : 'New Device'}</div>
                                 </div>
                                 <button
                                     type="submit"
@@ -730,6 +651,7 @@ const Dashboard = () => {
                                     {!saving && !success && <Save size={24} />}
                                 </button>
                             </div>
+
                         </motion.form>
                     </div>
                 </div>

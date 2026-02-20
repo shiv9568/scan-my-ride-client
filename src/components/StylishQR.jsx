@@ -1,7 +1,7 @@
 import React from 'react';
 import QRCode from 'react-qr-code';
 
-const StylishQR = ({ value, id, isForDownload = false }) => {
+const StylishQR = ({ value, id, isForDownload = false, logoUrl }) => {
     return (
         <div
             id={id}
@@ -73,7 +73,7 @@ const StylishQR = ({ value, id, isForDownload = false }) => {
                     <span style={{ fontSize: '10px', fontWeight: 900, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Scan Me</span>
                 </div>
 
-                <div style={{ width: '180px', height: '180px' }}>
+                <div style={{ width: '180px', height: '180px', position: 'relative' }}>
                     <QRCode
                         value={value}
                         size={512}
@@ -81,6 +81,34 @@ const StylishQR = ({ value, id, isForDownload = false }) => {
                         fgColor="#000000"
                         style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                     />
+                    {/* Custom Logo Overlay */}
+                    {logoUrl && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: '#fff',
+                            borderRadius: '8px',
+                            padding: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}>
+                            <img
+                                src={logoUrl}
+                                alt="Logo"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

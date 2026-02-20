@@ -9,10 +9,10 @@ const ThemeToggle = () => {
         <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={toggleUiMode}
-            className="p-2.5 rounded-xl bg-zinc-900/50 border border-white/5 text-zinc-400 hover:text-brand transition-all flex items-center justify-center"
+            className="p-2.5 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] text-[var(--text-color)] opacity-70 hover:opacity-100 hover:text-[var(--theme-brand)] transition-all flex items-center justify-center"
             aria-label="Toggle Theme"
         >
-            {uiMode === 'dark' ? <Sun size={20} /> : <Moon size={20} className="text-zinc-600" />}
+            {uiMode === 'dark' ? <Sun size={20} /> : <Moon size={20} className="text-[var(--text-color)] opacity-80" />}
         </motion.button>
     );
 };

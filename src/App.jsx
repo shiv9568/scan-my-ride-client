@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useContext } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
 import Login from './pages/Login';
@@ -20,7 +21,8 @@ const PrivateRoute = ({ children }) => {
 const AdminRoute = ({ children }) => {
   const { token, user, loading } = useContext(AuthContext);
   if (loading) return <div>Loading...</div>;
-  return token && user?.role === 'admin' ? children : <Navigate to="/dashboard" />;
+  if (!token) return <Navigate to="/login" state={{ from: '/admin' }} replace />;
+  return user?.role === 'admin' ? children : <Navigate to="/dashboard" />;
 };
 
 function App() {
@@ -34,7 +36,9 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={
               <PrivateRoute>
-                <Dashboard />
+                <ErrorBoundary>
+                  <Dashboard />
+                </ErrorBoundary>
               </PrivateRoute>
             } />
             <Route path="/admin" element={

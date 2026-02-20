@@ -3,7 +3,7 @@ import Logo from '../components/Logo';
 import { useParams, Link } from 'react-router-dom';
 import api, { API_URL } from '../api/axios';
 import { motion } from 'framer-motion';
-import { Phone, User, Briefcase, Instagram, Linkedin, MapPin, AlertCircle, Droplets, ChevronRight, QrCode, ShieldCheck, Gauge, Zap, Cog, Play, Youtube } from 'lucide-react';
+import { Phone, User, Briefcase, Instagram, Linkedin, MapPin, AlertCircle, Droplets, ChevronRight, QrCode, ShieldCheck, MessageCircle } from 'lucide-react';
 
 const PublicProfile = () => {
     const { uniqueId } = useParams();
@@ -12,22 +12,51 @@ const PublicProfile = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        let retryCount = 0;
+        const maxRetries = 3;
+
         const fetchProfile = async () => {
             try {
                 const res = await api.get(`/api/profile/public/${uniqueId}`);
                 setProfile(res.data);
                 setLoading(false);
             } catch (err) {
-                setError('Profile not found');
-                setLoading(false);
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    setTimeout(fetchProfile, 1000); // Retry every second
+                } else {
+                    setError('The profile is temporarily unavailable or the server is waking up. Please try scanning again.');
+                    setLoading(false);
+                }
             }
         };
         fetchProfile();
     }, [uniqueId]);
 
     if (loading) return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8">
+            <div className="w-full max-w-lg space-y-8">
+                {/* Image Placeholder */}
+                <div className="h-64 w-full bg-zinc-900 rounded-[2rem] animate-pulse relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                </div>
+                {/* Title Placeholder */}
+                <div className="space-y-3">
+                    <div className="h-10 w-3/4 bg-zinc-900 rounded-xl animate-pulse" />
+                    <div className="h-4 w-1/2 bg-zinc-900 rounded-lg animate-pulse" />
+                </div>
+                {/* Card Placeholder */}
+                <div className="h-48 w-full bg-zinc-900 rounded-[2.5rem] animate-pulse" />
+                {/* Action Placeholder */}
+                <div className="h-16 w-full bg-zinc-900 rounded-2xl animate-pulse" />
+            </div>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes shimmer {
+                    100% { transform: translateX(100%); }
+                }
+            `}} />
         </div>
     );
 
@@ -167,84 +196,11 @@ const PublicProfile = () => {
                     </div>
                 </motion.div>
 
-                {/* Spec-Sheet Layout (Performance Metrics) */}
-                {(profile.specs?.hp || profile.specs?.torque || profile.specs?.engine) && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-8"
-                    >
-                        <div className="flex items-center gap-2 mb-4">
-                            <Gauge size={18} className="text-[var(--theme-brand)]" />
-                            <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Performance Specs</h2>
-                        </div>
-                        <div className="grid grid-cols-3 gap-3">
-                            <div className="bg-[var(--theme-card)] border border-white/5 p-4 rounded-2xl text-center relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-0.5 bg-[var(--theme-brand)] opacity-30 group-hover:opacity-100 transition-opacity"></div>
-                                <Zap size={14} className="mx-auto mb-2 text-[var(--theme-brand)]" />
-                                <div className="text-xl font-black text-[var(--theme-text)]">{profile.specs?.hp || '--'}</div>
-                                <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">BHP</div>
-                            </div>
-                            <div className="bg-[var(--theme-card)] border border-white/5 p-4 rounded-2xl text-center relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-0.5 bg-[var(--theme-brand)] opacity-30 group-hover:opacity-100 transition-opacity"></div>
-                                <Gauge size={14} className="mx-auto mb-2 text-[var(--theme-brand)]" />
-                                <div className="text-xl font-black text-[var(--theme-text)]">{profile.specs?.torque || '--'}</div>
-                                <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Torque</div>
-                            </div>
-                            <div className="bg-[var(--theme-card)] border border-white/5 p-4 rounded-2xl text-center relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-0.5 bg-[var(--theme-brand)] opacity-30 group-hover:opacity-100 transition-opacity"></div>
-                                <Cog size={14} className="mx-auto mb-2 text-[var(--theme-brand)]" />
-                                <div className="text-[10px] font-black text-[var(--theme-text)] leading-none mt-1 uppercase truncate overflow-hidden block">{profile.specs?.engine || 'Stock'}</div>
-                                <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mt-1">Engine</div>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
 
-                {/* Build Video / Reels */}
-                {profile.youtubeLink && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-8"
-                    >
-                        <a
-                            href={profile.youtubeLink}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center justify-between p-6 rounded-3xl bg-red-600/10 border border-red-600/20 group hover:bg-red-600/20 transition-all overflow-hidden relative"
-                        >
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 rounded-full blur-3xl -mr-10 -mt-10" />
-                            <div className="flex items-center gap-4 relative z-10">
-                                <div className="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <Play size={24} className="text-white fill-current translate-x-0.5" />
-                                </div>
-                                <div>
-                                    <div className="text-white font-black uppercase tracking-tighter text-lg italic">Watch the Build</div>
-                                    <div className="flex items-center gap-2 text-red-500 text-[10px] font-black uppercase tracking-widest">
-                                        <Youtube size={12} /> Full Cinematic Video
-                                    </div>
-                                </div>
-                            </div>
-                            <ChevronRight className="text-red-500 group-hover:translate-x-1 transition-transform" />
-                        </a>
-                    </motion.div>
-                )}
 
-                {/* Modifications List */}
-                {profile.specs?.mods && (
-                    <div className="mb-8 bg-[var(--theme-card)] border border-white/5 p-6 rounded-[2rem] relative overflow-hidden">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="w-6 h-6 rounded-lg bg-[var(--theme-brand)]/10 flex items-center justify-center">
-                                <Cog size={14} className="text-[var(--theme-brand)]" />
-                            </div>
-                            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-300">Modifications List</h2>
-                        </div>
-                        <div className="text-sm font-bold text-zinc-400 leading-relaxed italic whitespace-pre-wrap">
-                            {profile.specs.mods}
-                        </div>
-                    </div>
-                )}
+
+
+
 
                 {/* Essential Info Grid */}
                 <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 mb-8">
@@ -266,19 +222,128 @@ const PublicProfile = () => {
                     )}
                 </div>
 
-                {/* Secondary Actions */}
-                {profile.emergencyContact && (
-                    <div className="bg-[var(--theme-card)] backdrop-blur-lg p-6 rounded-[2rem] border border-white/5 mb-10 overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--theme-brand)]/5 rounded-full blur-3xl -mr-10 -mt-10" />
-                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2">Family/SOS Contact</div>
-                        <div className="font-black text-xl flex items-center justify-between">
-                            <span className="text-[var(--theme-text)]">{profile.emergencyContact}</span>
-                            <a href={`tel:${profile.emergencyContact}`} className="bg-[var(--theme-brand)] text-black p-3 rounded-xl hover:scale-110 transition-transform">
-                                <Phone size={18} />
-                            </a>
+                {/* Quick Actions (WhatsApp) */}
+                <div className="bg-[var(--theme-card)] backdrop-blur-lg p-6 rounded-[2rem] border border-white/5 mb-10 space-y-6">
+                    {profile.phoneNumber ? (
+                        <>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Instant Alerts (WhatsApp)</h4>
+                            <div className="grid grid-cols-1 gap-3">
+                                {/* Parking Issue */}
+                                <a
+                                    href={`https://wa.me/${profile.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, your car ${profile.carName} is blocking my way 🚗`)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="w-full py-4 px-6 bg-zinc-900/50 hover:bg-[#25D366]/10 hover:border-[#25D366]/30 border border-white/5 rounded-2xl flex items-center justify-between transition-all group"
+                                >
+                                    <span className="font-bold text-sm uppercase tracking-wide text-[var(--theme-text)] group-hover:text-[#25D366]">Parking Issue</span>
+                                    <MessageCircle size={20} className="text-zinc-500 group-hover:text-[#25D366] transition-colors" />
+                                </a>
+
+                                {/* Emergency */}
+                                <a
+                                    href={`https://wa.me/${profile.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Urgent: Please contact regarding your car ${profile.carName} (Auto-Alert)`)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="w-full py-4 px-6 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl flex items-center justify-between transition-all group"
+                                >
+                                    <span className="font-bold text-sm uppercase tracking-wide text-red-500">Emergency Alert</span>
+                                    <AlertCircle size={20} className="text-red-500 group-hover:scale-110 transition-transform" />
+                                </a>
+
+                                {/* General Contact */}
+                                <a
+                                    href={`https://wa.me/${profile.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I scanned your car.`)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="w-full py-4 px-6 bg-zinc-900/50 hover:bg-[var(--theme-brand)] hover:text-black hover:border-[var(--theme-brand)] border border-white/5 rounded-2xl flex items-center justify-between transition-all group"
+                                >
+                                    <span className="font-bold text-sm uppercase tracking-wide text-[var(--theme-text)] group-hover:text-black">General Contact</span>
+                                    <User size={20} className="text-zinc-500 group-hover:text-black transition-colors" />
+                                </a>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="p-6 text-center text-zinc-500 text-xs uppercase font-bold tracking-widest border border-dashed border-zinc-800 rounded-xl">
+                            Contact Info Private
                         </div>
+                    )}
+                </div>
+
+                {/* Guestbook Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                    className="mb-8"
+                >
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-1 h-4 bg-[var(--theme-brand)] rounded-full" />
+                        <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Guestbook</h2>
                     </div>
-                )}
+
+                    <div className="bg-[var(--theme-card)] border border-white/5 rounded-[2rem] p-6 mb-4">
+                        <h3 className="text-xl font-black italic mb-4">Leave a Note</h3>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.target);
+                            const name = formData.get('name');
+                            const message = formData.get('message');
+
+                            try {
+                                const res = await api.post(`/api/profile/public/${uniqueId}/guestbook`, { name, message });
+                                // Optimistically update or re-fetch
+                                // For simplicity re-fetch or append
+                                const newEntry = { name: name || 'Anonymous Enthusiast', message, date: new Date().toISOString() };
+                                setProfile(prev => ({
+                                    ...prev,
+                                    guestbook: [newEntry, ...(prev.guestbook || [])]
+                                }));
+                                e.target.reset();
+                            } catch (err) {
+                                console.error(err);
+                                alert('Could not post message.');
+                            }
+                        }} className="space-y-4">
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Your Name (Optional)"
+                                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--theme-brand)] transition-colors placeholder:text-zinc-600"
+                            />
+                            <textarea
+                                name="message"
+                                rows="3"
+                                placeholder="Nice ride! Love the wheels..."
+                                required
+                                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--theme-brand)] transition-colors placeholder:text-zinc-600 resize-none"
+                            ></textarea>
+                            <button
+                                type="submit"
+                                className="w-full bg-[var(--theme-brand)] text-black font-black uppercase tracking-widest py-3 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                            >
+                                Sign Guestbook <ChevronRight size={16} />
+                            </button>
+                        </form>
+                    </div>
+
+                    <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        {profile.guestbook && profile.guestbook.length > 0 ? (
+                            profile.guestbook.map((entry, index) => (
+                                <div key={index} className="bg-zinc-900/40 border border-white/5 p-4 rounded-2xl">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className="font-bold text-[var(--theme-text)] text-sm">{entry.name}</span>
+                                        <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{new Date(entry.date).toLocaleDateString()}</span>
+                                    </div>
+                                    <p className="text-zinc-400 text-xs leading-relaxed">"{entry.message}"</p>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-6 text-zinc-600 text-xs font-bold uppercase tracking-widest italic">
+                                Be the first to sign the guestbook!
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
 
                 {/* Secure Badge */}
                 <div className="mt-12 flex flex-col items-center">
