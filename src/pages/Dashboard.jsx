@@ -39,7 +39,13 @@ const Dashboard = () => {
         showPhone: true,
         emergencyMode: false,
         uniqueId: '',
-        customQrLogo: ''
+        customQrLogo: '',
+        themeColor: '#f4b00b',
+        uiMode: 'dark',
+        fontStyle: 'font-outfit',
+        profileType: 'car',
+        resumeLink: '',
+        workDetails: ''
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -112,8 +118,13 @@ const Dashboard = () => {
             isPublic: true,
             showPhone: true,
             emergencyMode: false,
-            themeColor: '#3b82f6',
+            themeColor: '#f4b00b',
             selectedTheme: 'carbon',
+            uiMode: 'dark',
+            fontStyle: 'font-outfit',
+            profileType: 'car',
+            resumeLink: '',
+            workDetails: '',
             uniqueId: ''
         };
         setProfile(newProfile);
@@ -290,6 +301,7 @@ const Dashboard = () => {
                                         <StylishQR
                                             id="stylish-sticker"
                                             value={publicUrl}
+                                            bgColor={profile.themeColor}
                                         />
                                         {/* Hidden high-res version for export only */}
                                         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
@@ -297,6 +309,7 @@ const Dashboard = () => {
                                                 id="sticker-download-hub"
                                                 value={publicUrl}
                                                 isForDownload={true}
+                                                bgColor={profile.themeColor}
                                             />
                                         </div>
                                     </>
@@ -437,18 +450,34 @@ const Dashboard = () => {
                                     <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
                                         <User size={18} className="text-brand" />
                                     </div>
-                                    <h2 className="text-lg font-black uppercase tracking-widest text-[var(--text-color)]">Car & Owner Identity</h2>
+                                    <h2 className="text-lg font-black uppercase tracking-widest text-[var(--text-color)]">Profile Mode & Identity</h2>
+                                </div>
+
+                                {/* Profile Type Selector */}
+                                <div className="mb-10 flex bg-[var(--input-bg)] p-1 rounded-2xl border border-[var(--card-border)] max-w-md mx-auto">
+                                    {['car', 'business', 'portfolio'].map(type => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => setProfile(prev => ({ ...prev, profileType: type }))}
+                                            className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${profile.profileType === type ? 'bg-brand text-black shadow-lg scale-105' : 'text-zinc-500 opacity-60'}`}
+                                        >
+                                            {type}
+                                        </button>
+                                    ))}
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Car Identification</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">
+                                            {profile.profileType === 'car' ? 'Car Identification' : 'Business/Portfolio Name'}
+                                        </label>
                                         <input
                                             name="carName"
                                             value={profile.carName}
                                             onChange={handleChange}
                                             className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
-                                            placeholder="e.g. Matte Black Mustang"
+                                            placeholder={profile.profileType === 'car' ? "e.g. Matte Black Mustang" : "e.g. Creative Studio / Personal Brand"}
                                             required
                                         />
                                     </div>
@@ -474,15 +503,41 @@ const Dashboard = () => {
                                         />
                                     </div>
                                     <div className="group space-y-3">
-                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Profession</label>
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Profession / Title</label>
                                         <input
                                             name="profession"
                                             value={profile.profession}
                                             onChange={handleChange}
                                             className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
-                                            placeholder="Business Owner"
+                                            placeholder="Business Owner / Software Engineer"
                                         />
                                     </div>
+
+                                    {profile.profileType !== 'car' && (
+                                        <>
+                                            <div className="group space-y-3 md:col-span-2">
+                                                <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Professional Summary / Work Details</label>
+                                                <textarea
+                                                    name="workDetails"
+                                                    value={profile.workDetails}
+                                                    onChange={handleChange}
+                                                    rows="3"
+                                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] outline-none transition-all font-medium resize-none"
+                                                    placeholder="Briefly describe your services, projects or work experience..."
+                                                />
+                                            </div>
+                                            <div className="group space-y-3 md:col-span-2">
+                                                <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">Resume / Portfolio PDF Link</label>
+                                                <input
+                                                    name="resumeLink"
+                                                    value={profile.resumeLink}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] outline-none transition-all font-medium"
+                                                    placeholder="https://drive.google.com/... (Link to your resume)"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </section>
 
@@ -587,6 +642,76 @@ const Dashboard = () => {
                                             {profile.selectedTheme === theme.id && <div className="absolute -top-1 -right-1 w-4 h-4 bg-brand rounded-full flex items-center justify-center"><div className="w-1.5 h-1.5 bg-black rounded-full"></div></div>}
                                         </button>
                                     ))}
+                                </div>
+
+                                {/* Custom Color & UI Mode */}
+                                <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-white/5">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em]">Brand Accent Color</label>
+                                            <div className="flex gap-2">
+                                                {['#f4b00b', '#ef4444', '#3b82f6', '#22c55e', '#a855f7'].map(color => (
+                                                    <button
+                                                        key={color}
+                                                        type="button"
+                                                        onClick={() => setProfile(prev => ({ ...prev, themeColor: color }))}
+                                                        className={`w-6 h-6 rounded-full border-2 transition-all ${profile.themeColor === color ? 'border-white scale-125' : 'border-transparent'}`}
+                                                        style={{ backgroundColor: color }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <input
+                                            type="color"
+                                            name="themeColor"
+                                            value={profile.themeColor || '#f4b00b'}
+                                            onChange={handleChange}
+                                            className="w-full h-12 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] p-1 cursor-pointer"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em]">Public UI Mode</label>
+                                        <div className="flex bg-[var(--input-bg)] p-1 rounded-2xl border border-[var(--card-border)]">
+                                            <button
+                                                type="button"
+                                                onClick={() => setProfile(prev => ({ ...prev, uiMode: 'dark' }))}
+                                                className={`flex-1 py-3 rounded-xl font-black text-xs transition-all ${profile.uiMode === 'dark' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500'}`}
+                                            >
+                                                DARK
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setProfile(prev => ({ ...prev, uiMode: 'light' }))}
+                                                className={`flex-1 py-3 rounded-xl font-black text-xs transition-all ${profile.uiMode === 'light' ? 'bg-white text-black shadow-lg' : 'text-zinc-500'}`}
+                                            >
+                                                LIGHT
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Font Selection */}
+                                <div className="mt-8 pt-8 border-t border-white/5">
+                                    <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] mb-4 block">Typography Style</label>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                        {[
+                                            { id: 'font-outfit', name: 'Outfit (Modern)', class: 'font-outfit' },
+                                            { id: 'font-inter', name: 'Inter (Clean)', class: 'font-inter' },
+                                            { id: 'font-roboto', name: 'Roboto (Pro)', class: 'font-roboto' },
+                                            { id: 'font-mono', name: 'Mono (Tech)', class: 'font-mono' }
+                                        ].map(f => (
+                                            <button
+                                                key={f.id}
+                                                type="button"
+                                                onClick={() => setProfile(prev => ({ ...prev, fontStyle: f.id }))}
+                                                className={`p-4 rounded-2xl border transition-all text-left ${profile.fontStyle === f.id ? 'border-brand bg-brand/10' : 'border-[var(--card-border)] bg-[var(--card-bg)]'}`}
+                                            >
+                                                <div className={`text-xl mb-1 ${f.class}`}>Aa</div>
+                                                <div className="text-[10px] font-black opacity-60 truncate">{f.name}</div>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </section>
 

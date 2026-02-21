@@ -14,6 +14,11 @@
   
   --color-brand: #f4b00b;
   
+  --font-outfit: 'Outfit', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -57,6 +62,12 @@
   --glass-bg: rgba(255, 255, 255, 0.7);
   --nav-bg: rgba(255, 255, 255, 0.8);
   --input-bg: #f1f5f9;
+  
+  /* Map theme variables to light equivalents */
+  --theme-bg: var(--bg-color);
+  --theme-text: var(--text-color);
+  --theme-card: rgba(255, 255, 255, 0.8);
+  --theme-glow: rgba(0, 0, 0, 0.05);
 }
 
 [data-theme='neon'] {
@@ -151,3 +162,9 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #404040;
 }
+
+/* Font Utilities */
+.font-outfit { font-family: 'Outfit', sans-serif; }
+.font-inter { font-family: 'Inter', sans-serif; }
+.font-roboto { font-family: 'Roboto', sans-serif; }
+.font-mono { font-family: 'Space Mono', monospace; }

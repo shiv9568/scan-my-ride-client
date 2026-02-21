@@ -1,14 +1,14 @@
 import React from 'react';
 import QRCode from 'react-qr-code';
 
-const StylishQR = ({ value, id, isForDownload = false, logoUrl }) => {
+const StylishQR = ({ value, id, isForDownload = false, logoUrl, bgColor = '#f4b00b' }) => {
     return (
         <div
             id={id}
             style={{
                 width: '300px',
                 height: '380px',
-                backgroundColor: '#f4b00b',
+                backgroundColor: bgColor,
                 borderRadius: '56px',
                 padding: '24px',
                 display: 'flex',
@@ -18,7 +18,7 @@ const StylishQR = ({ value, id, isForDownload = false, logoUrl }) => {
                 position: 'relative',
                 margin: '0 auto',
                 fontFamily: "'Inter', system-ui, sans-serif",
-                boxShadow: isForDownload ? 'none' : '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(244, 176, 11, 0.2)',
+                boxShadow: isForDownload ? 'none' : `0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px ${bgColor}44`,
                 overflow: 'hidden'
             }}
         >

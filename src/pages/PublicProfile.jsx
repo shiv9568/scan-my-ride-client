@@ -64,13 +64,18 @@ const PublicProfile = () => {
     if (error) return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
             <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-            <h1 className="text-2xl font-bold text-white">Ops! Car Profile Not Found</h1>
+            <h1 className="text-2xl font-bold text-white">Profile Not Found</h1>
             <p className="text-slate-400 mt-2">The QR code might be invalid or the profile was deleted.</p>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-[var(--theme-bg)] text-[var(--theme-text)] font-sans selection:bg-[var(--theme-brand)] selection:text-black" data-theme={profile.selectedTheme || 'carbon'}>
+        <div
+            className={`min-h-screen bg-[var(--theme-bg)] text-[var(--theme-text)] ${profile.fontStyle || 'font-outfit'} selection:bg-[var(--theme-brand)] selection:text-black transition-colors duration-500`}
+            data-theme={profile.selectedTheme || 'carbon'}
+            data-ui-mode={profile.uiMode || 'dark'}
+            style={{ '--theme-brand': profile.themeColor || '#f4b00b' }}
+        >
             {/* Dynamic Background Element */}
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-full border-x border-white/5 bg-[var(--theme-bg)] z-0" />
 
@@ -83,7 +88,7 @@ const PublicProfile = () => {
                     transition={{ duration: 2, ease: "easeOut" }}
                     src={profile.carImage ? (profile.carImage.startsWith('http') ? profile.carImage : `${API_URL}/${profile.carImage}`) : 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80'}
                     className="w-full h-full object-cover opacity-60"
-                    alt="Car"
+                    alt="Banner"
                     onError={(e) => {
                         e.target.src = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80';
                     }}
@@ -104,6 +109,9 @@ const PublicProfile = () => {
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none">
                                 {profile.carName}
                             </h1>
+                            <div className="bg-[var(--theme-brand)] text-black px-2 py-0.5 rounded text-[10px] font-black uppercase">
+                                {profile.profileType || 'CAR'}
+                            </div>
                             {profile.isVerified && (
                                 <motion.div
                                     initial={{ scale: 0 }}
@@ -182,6 +190,18 @@ const PublicProfile = () => {
                             </a>
                         )}
 
+                        {profile.resumeLink && (
+                            <a
+                                href={profile.resumeLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="w-full py-4 rounded-2xl bg-zinc-900 border-2 border-dashed border-[var(--theme-brand)]/30 text-[var(--theme-brand)] hover:border-[var(--theme-brand)] transition-all flex items-center justify-center gap-3 font-black text-sm uppercase"
+                            >
+                                <Briefcase size={18} />
+                                VIEW RESUME / PORTFOLIO
+                            </a>
+                        )}
+
                         <div className="flex gap-3 sm:gap-4">
                             {profile.instagram && (
                                 <a href={`https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" className="flex-1 py-4 sm:py-5 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 hover:bg-zinc-800 transition-all">
@@ -196,6 +216,24 @@ const PublicProfile = () => {
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Professional / Work Details */}
+                {(profile.profileType === 'business' || profile.profileType === 'portfolio') && profile.workDetails && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                        className="bg-[var(--theme-card)] backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 mb-8 border border-white/5 shadow-2xl"
+                    >
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-1 h-4 bg-[var(--theme-brand)] rounded-full" />
+                            <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Professional Summary</h2>
+                        </div>
+                        <p className="text-[var(--theme-text)] opacity-80 leading-relaxed font-medium">
+                            {profile.workDetails}
+                        </p>
+                    </motion.div>
+                )}
 
 
 
@@ -231,25 +269,35 @@ const PublicProfile = () => {
                             <div className="grid grid-cols-1 gap-3">
                                 {/* Parking Issue */}
                                 <a
-                                    href={`https://wa.me/${profile.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, your car ${profile.carName} is blocking my way 🚗`)}`}
+                                    href={`https://wa.me/${profile.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${profile.ownerName}, I scanned your ${profile.profileType || 'profile'}.`)}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="w-full py-4 px-6 bg-zinc-900/50 hover:bg-[#25D366]/10 hover:border-[#25D366]/30 border border-white/5 rounded-2xl flex items-center justify-between transition-all group"
                                 >
-                                    <span className="font-bold text-sm uppercase tracking-wide text-[var(--theme-text)] group-hover:text-[#25D366]">Parking Issue</span>
+                                    <span className="font-bold text-sm uppercase tracking-wide text-[var(--theme-text)] group-hover:text-[#25D366]">Send Message</span>
                                     <MessageCircle size={20} className="text-zinc-500 group-hover:text-[#25D366] transition-colors" />
                                 </a>
 
-                                {/* Emergency */}
-                                <a
-                                    href={`https://wa.me/${profile.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Urgent: Please contact regarding your car ${profile.carName} (Auto-Alert)`)}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="w-full py-4 px-6 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl flex items-center justify-between transition-all group"
-                                >
-                                    <span className="font-bold text-sm uppercase tracking-wide text-red-500">Emergency Alert</span>
-                                    <AlertCircle size={20} className="text-red-500 group-hover:scale-110 transition-transform" />
-                                </a>
+                                {/* Emergency / Contact info */}
+                                {profile.profileType === 'car' ? (
+                                    <a
+                                        href={`https://wa.me/${profile.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Urgent: Please contact regarding your car ${profile.carName} (Auto-Alert)`)}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="w-full py-4 px-6 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl flex items-center justify-between transition-all group"
+                                    >
+                                        <span className="font-bold text-sm uppercase tracking-wide text-red-500">Emergency Alert</span>
+                                        <AlertCircle size={20} className="text-red-500 group-hover:scale-110 transition-transform" />
+                                    </a>
+                                ) : (
+                                    <a
+                                        href={`tel:${profile.phoneNumber}`}
+                                        className="w-full py-4 px-6 bg-[var(--theme-brand)]/10 hover:bg-[var(--theme-brand)]/20 border border-[var(--theme-brand)]/20 rounded-2xl flex items-center justify-between transition-all group"
+                                    >
+                                        <span className="font-bold text-sm uppercase tracking-wide text-[var(--theme-brand)]">Call Now</span>
+                                        <Phone size={20} className="text-[var(--theme-brand)]" />
+                                    </a>
+                                )}
 
                                 {/* General Contact */}
                                 <a
@@ -362,8 +410,8 @@ const PublicProfile = () => {
                             <div className="w-16 h-16 rounded-2xl bg-[var(--theme-brand)] flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(244,176,11,0.3)] group-hover:scale-110 transition-transform duration-500">
                                 <QrCode size={32} className="text-black" />
                             </div>
-                            <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2 italic">Want this for your Car?</h3>
-                            <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-8 leading-relaxed">Join 10,000+ owners protecting their vehicles with ScanMyRide.</p>
+                            <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2 italic">Want a Smart {profile.profileType === 'car' ? 'Car' : 'Brand'} Profile?</h3>
+                            <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-8 leading-relaxed">Join 10,000+ users protecting their {profile.profileType === 'car' ? 'vehicles' : 'identity'} with ScanMyRide.</p>
 
                             <div className="w-full flex items-center justify-center gap-2 py-4 bg-brand text-black font-black uppercase tracking-widest rounded-xl group-hover:shadow-[0_0_20px_rgba(244,176,11,0.4)] transition-all">
                                 Get Free QR Now <ChevronRight size={18} />
