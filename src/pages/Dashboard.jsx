@@ -45,7 +45,14 @@ const Dashboard = () => {
         fontStyle: 'font-outfit',
         profileType: 'car',
         resumeLink: '',
-        workDetails: ''
+        workDetails: '',
+        youtubeLink: '',
+        specs: {
+            hp: '',
+            torque: '',
+            engine: '',
+            mods: ''
+        }
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -125,6 +132,13 @@ const Dashboard = () => {
             profileType: 'car',
             resumeLink: '',
             workDetails: '',
+            youtubeLink: '',
+            specs: {
+                hp: '',
+                torque: '',
+                engine: '',
+                mods: ''
+            },
             uniqueId: ''
         };
         setProfile(newProfile);
@@ -168,9 +182,11 @@ const Dashboard = () => {
         const formData = new FormData();
         Object.keys(profile).forEach(key => {
             // Skip file objects or specific image fields here, handle explicitly
-            if (['customQrLogo', 'profileImage', 'carImage', 'youtubeLink', 'specs', '_id', '__v'].includes(key)) return;
+            if (['customQrLogo', 'profileImage', 'carImage', '_id', '__v'].includes(key)) return;
 
-            if (profile[key] !== null) {
+            if (key === 'specs') {
+                formData.append('specs', JSON.stringify(profile.specs));
+            } else if (profile[key] !== null) {
                 formData.append(key, profile[key]);
             }
         });
@@ -535,6 +551,60 @@ const Dashboard = () => {
                                                     className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] outline-none transition-all font-medium"
                                                     placeholder="https://drive.google.com/... (Link to your resume)"
                                                 />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {profile.profileType === 'car' && (
+                                        <>
+                                            <div className="group space-y-3 md:col-span-2">
+                                                <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand transition-colors">YouTube Build Video</label>
+                                                <input
+                                                    name="youtubeLink"
+                                                    value={profile.youtubeLink || ''}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] outline-none transition-all font-medium"
+                                                    placeholder="youtube.com/watch?v=..."
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:col-span-2 pt-4 border-t border-white/5">
+                                                <div className="group space-y-3">
+                                                    <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1">Horsepower</label>
+                                                    <input
+                                                        value={profile.specs?.hp || ''}
+                                                        onChange={(e) => setProfile(prev => ({ ...prev, specs: { ...prev.specs, hp: e.target.value } }))}
+                                                        className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-medium"
+                                                        placeholder="450 HP"
+                                                    />
+                                                </div>
+                                                <div className="group space-y-3">
+                                                    <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1">Torque</label>
+                                                    <input
+                                                        value={profile.specs?.torque || ''}
+                                                        onChange={(e) => setProfile(prev => ({ ...prev, specs: { ...prev.specs, torque: e.target.value } }))}
+                                                        className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-medium"
+                                                        placeholder="500 NM"
+                                                    />
+                                                </div>
+                                                <div className="group space-y-3">
+                                                    <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1">Engine</label>
+                                                    <input
+                                                        value={profile.specs?.engine || ''}
+                                                        onChange={(e) => setProfile(prev => ({ ...prev, specs: { ...prev.specs, engine: e.target.value } }))}
+                                                        className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-medium"
+                                                        placeholder="5.0L V8"
+                                                    />
+                                                </div>
+                                                <div className="group space-y-3 md:col-span-3">
+                                                    <label className="text-[10px] font-black text-[var(--text-color)] opacity-60 uppercase tracking-[0.2em] ml-1">Performance Modifications</label>
+                                                    <textarea
+                                                        value={profile.specs?.mods || ''}
+                                                        onChange={(e) => setProfile(prev => ({ ...prev, specs: { ...prev.specs, mods: e.target.value } }))}
+                                                        className="w-full bg-[var(--input-bg)] border border-[var(--card-border)] rounded-2xl p-4 text-[var(--text-color)] focus:border-brand/50 focus:bg-[var(--card-bg)] transition-all font-medium resize-none"
+                                                        rows="2"
+                                                        placeholder="Stage 2 Tune, Full Exhaust, Air Intake..."
+                                                    />
+                                                </div>
                                             </div>
                                         </>
                                     )}
