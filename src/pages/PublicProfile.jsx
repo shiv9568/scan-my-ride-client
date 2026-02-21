@@ -13,7 +13,8 @@ const PublicProfile = () => {
 
     useEffect(() => {
         let retryCount = 0;
-        const maxRetries = 3;
+        const maxRetries = 15; // Increased to handle Render waking up
+        const retryDelay = 2000; // 2 seconds between retries
 
         const fetchProfile = async () => {
             try {
@@ -23,9 +24,9 @@ const PublicProfile = () => {
             } catch (err) {
                 if (retryCount < maxRetries) {
                     retryCount++;
-                    setTimeout(fetchProfile, 1000); // Retry every second
+                    setTimeout(fetchProfile, retryDelay);
                 } else {
-                    setError('The profile is temporarily unavailable or the server is waking up. Please try scanning again.');
+                    setError('The server is taking longer than expected to wake up. Please refresh the page in a few seconds.');
                     setLoading(false);
                 }
             }
