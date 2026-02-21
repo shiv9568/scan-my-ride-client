@@ -12,7 +12,7 @@ const Logo = ({ className = "w-12 h-12", iconOnly = false }) => {
                 />
             </div>
             {!iconOnly && (
-                <span className="font-black text-2xl tracking-tighter uppercase text-white">
+                <span className="font-black text-2xl tracking-tighter uppercase text-[var(--text-color)]">
                     SCANMY<span className="text-brand">RIDE</span>
                 </span>
             )}

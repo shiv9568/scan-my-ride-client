@@ -7,8 +7,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import PublicProfile from './pages/PublicProfile';
+
+import Dashboard3 from './pages/Dashboard3';
+import PublicProfile3 from './pages/PublicProfile3';
 import Home from './pages/Home';
 import AdminDashboard from './pages/AdminDashboard';
 
@@ -26,6 +27,10 @@ const AdminRoute = ({ children }) => {
 };
 
 function App() {
+  // Enforce light mode globally — yellow & white only
+  document.documentElement.setAttribute('data-ui-mode', 'light');
+  document.documentElement.setAttribute('data-theme', 'carbon');
+
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -37,16 +42,17 @@ function App() {
             <Route path="/dashboard" element={
               <PrivateRoute>
                 <ErrorBoundary>
-                  <Dashboard />
+                  <Dashboard3 />
                 </ErrorBoundary>
               </PrivateRoute>
             } />
+
             <Route path="/admin" element={
               <AdminRoute>
                 <AdminDashboard />
               </AdminRoute>
             } />
-            <Route path="/p/:uniqueId" element={<PublicProfile />} />
+            <Route path="/p/:uniqueId" element={<PublicProfile3 />} />
           </Routes>
         </Router>
       </AuthProvider>

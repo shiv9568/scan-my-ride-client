@@ -1,21 +1,13 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-    const [uiMode, setUiMode] = useState(localStorage.getItem('uiMode') || 'dark');
-
-    useEffect(() => {
-        document.documentElement.setAttribute('data-ui-mode', uiMode);
-        localStorage.setItem('uiMode', uiMode);
-    }, [uiMode]);
-
-    const toggleUiMode = () => {
-        setUiMode(prev => prev === 'dark' ? 'light' : 'dark');
-    };
+    // Always light mode – yellow & white theme
+    const uiMode = 'light';
 
     return (
-        <ThemeContext.Provider value={{ uiMode, toggleUiMode }}>
+        <ThemeContext.Provider value={{ uiMode, toggleUiMode: () => { } }}>
             {children}
         </ThemeContext.Provider>
     );
