@@ -83,11 +83,11 @@ const Dashboard = () => {
                     });
 
                     if (p.profileImage) {
-                        const imgUrl = p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`;
+                        const imgUrl = (p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`;
                         setPreview(imgUrl);
                     }
                     if (p.carImage) {
-                        const imgUrl = p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`;
+                        const imgUrl = (p.carImage.startsWith('http') || p.carImage.startsWith('data:')) ? p.carImage : `${API_URL}/${p.carImage}`;
                         setCarPreview(imgUrl);
                     }
                 }
@@ -107,8 +107,8 @@ const Dashboard = () => {
             customQrLogo: p.customQrLogo || ''
         });
         localStorage.setItem('lastProfileId', p.uniqueId);
-        setPreview(p.profileImage ? (p.profileImage.startsWith('http') ? p.profileImage : `${API_URL}/${p.profileImage}`) : null);
-        setCarPreview(p.carImage ? (p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`) : null);
+        setPreview(p.profileImage ? ((p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`) : null);
+        setCarPreview(p.carImage ? ((p.carImage.startsWith('http') || p.carImage.startsWith('data:')) ? p.carImage : `${API_URL}/${p.carImage}`) : null);
     };
 
     const addNewCar = () => {

@@ -86,7 +86,7 @@ const PublicProfile = () => {
                     initial={{ scale: 1.2, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 2, ease: "easeOut" }}
-                    src={profile.carImage ? (profile.carImage.startsWith('http') ? profile.carImage : `${API_URL}/${profile.carImage}`) : 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80'}
+                    src={profile.carImage ? ((profile.carImage.startsWith('http') || profile.carImage.startsWith('data:')) ? profile.carImage : `${API_URL}/${profile.carImage}`) : 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80'}
                     className="w-full h-full object-cover opacity-60"
                     alt="Banner"
                     onError={(e) => {
@@ -157,7 +157,7 @@ const PublicProfile = () => {
                         <div className="w-20 h-20 rounded-3xl bg-brand p-[2px] shadow-[0_10px_30px_rgba(244,176,11,0.3)] overflow-hidden">
                             {profile.profileImage ? (
                                 <img
-                                    src={profile.profileImage.startsWith('http') ? profile.profileImage : `${API_URL}/${profile.profileImage}`}
+                                    src={(profile.profileImage.startsWith('http') || profile.profileImage.startsWith('data:')) ? profile.profileImage : `${API_URL}/${profile.profileImage}`}
                                     className="w-full h-full object-cover rounded-[1.4rem]"
                                     alt={profile.ownerName}
                                     onError={(e) => {
