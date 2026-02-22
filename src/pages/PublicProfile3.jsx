@@ -17,9 +17,9 @@ const Orb = ({ className }) => (
 /* ── Glass card ── */
 const Glass = ({ children, className = '', delay = 0 }) => (
     <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ delay: delay * 0.4, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         className={`bg-white/8 backdrop-blur-xl border border-white/12 rounded-[1.75rem] ${className}`}
         style={{ boxShadow: '0 4px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)' }}
     >
@@ -69,7 +69,7 @@ const PublicProfile3 = () => {
                 const { data } = await api.get(`/api/profile/public/${uniqueId}`);
                 setProfile(data); setLoading(false);
             } catch {
-                if (retries++ < 15) setTimeout(load, 2000);
+                if (retries++ < 3) setTimeout(load, 300);
                 else { setError(true); setLoading(false); }
             }
         };
@@ -139,9 +139,10 @@ const PublicProfile3 = () => {
                 {carImg ? (
                     <>
                         <motion.img src={carImg} alt="Banner"
-                            initial={{ scale: 1.15, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 2, ease: 'easeOut' }}
+                            initial={{ scale: 1.05, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.7, ease: 'easeOut' }}
                             onError={e => e.target.style.display = 'none'}
+                            loading="eager" decoding="async"
                             className="absolute inset-0 w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-b from-[#0d0618]/50 via-[#0d0618]/20 to-[#0d0618]" />
                         <div className="absolute inset-0 bg-gradient-to-r from-[#0d0618]/70 to-transparent" />
@@ -180,7 +181,7 @@ const PublicProfile3 = () => {
                         <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.5, type: 'spring' }}
                             className="w-16 h-16 rounded-[1.25rem] overflow-hidden flex-shrink-0 border-2"
                             style={{ borderColor: brand + '88', boxShadow: `0 8px 24px ${brand}44` }}>
-                            <img src={avatarImg} alt={profile.ownerName} className="w-full h-full object-cover" />
+                            <img src={avatarImg} alt={profile.ownerName} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                         </motion.div>
                     )}
                 </div>
@@ -213,7 +214,7 @@ const PublicProfile3 = () => {
                         <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border-2"
                             style={{ borderColor: brand + '55', boxShadow: `0 4px 20px ${brand}33` }}>
                             {avatarImg
-                                ? <img src={avatarImg} alt="Owner" className="w-full h-full object-cover" />
+                                ? <img src={avatarImg} alt="Owner" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                 : <div className="w-full h-full flex items-center justify-center bg-white/5"><User size={26} style={{ color: brand }} /></div>
                             }
                         </div>

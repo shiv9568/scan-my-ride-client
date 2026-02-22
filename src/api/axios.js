@@ -8,6 +8,7 @@ if (!API_URL) {
 
 const api = axios.create({
     baseURL: API_URL,
+    timeout: 6000, // Fail fast — don't hang indefinitely on bad connections
     headers: {
         'Content-Type': 'application/json'
     }

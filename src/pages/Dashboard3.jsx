@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import Logo from '../components/Logo';
 import { AuthContext } from '../context/AuthContext';
 import api, { API_URL } from '../api/axios';
@@ -11,7 +11,7 @@ import {
     QrCode, Settings, ShieldCheck, Eye, EyeOff,
     AlertCircle, Save, Camera, Check, ChevronDown,
     Zap, LayoutDashboard, Palette, Instagram, Linkedin,
-    Droplets, MapPin
+    Droplets, MapPin, ScanLine, X, CheckCircle2, XCircle, Info, Download as DownloadIcon
 } from 'lucide-react';
 
 /* ── tiny helpers ── */
@@ -20,6 +20,103 @@ const GlassCard = ({ children, className = '' }) => (
         {children}
     </div>
 );
+
+/* ─────────── TOAST SYSTEM ─────────── */
+const TOAST_VARIANTS = {
+    success: {
+        icon: CheckCircle2,
+        bg: 'bg-[#0f1a0f] border-green-500/40',
+        iconColor: 'text-green-400',
+        bar: 'bg-green-500',
+        title: 'text-green-300',
+    },
+    error: {
+        icon: XCircle,
+        bg: 'bg-[#1a0f0f] border-red-500/40',
+        iconColor: 'text-red-400',
+        bar: 'bg-red-500',
+        title: 'text-red-300',
+    },
+    info: {
+        icon: Info,
+        bg: 'bg-[#0f0f1a] border-violet-500/40',
+        iconColor: 'text-violet-400',
+        bar: 'bg-violet-500',
+        title: 'text-violet-300',
+    },
+};
+
+const Toast = ({ toast, onRemove }) => {
+    const v = TOAST_VARIANTS[toast.type] || TOAST_VARIANTS.info;
+    const Icon = v.icon;
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: -24, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.93 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className={`relative flex items-start gap-3 w-full max-w-sm px-4 py-3.5 rounded-2xl border shadow-2xl backdrop-blur-xl overflow-hidden ${v.bg}`}
+            style={{ fontFamily: 'Outfit, sans-serif' }}
+        >
+            {/* progress bar */}
+            <motion.div
+                className={`absolute bottom-0 left-0 h-[2px] ${v.bar}`}
+                initial={{ width: '100%' }}
+                animate={{ width: '0%' }}
+                transition={{ duration: toast.duration / 1000, ease: 'linear' }}
+            />
+            <Icon size={18} className={`${v.iconColor} flex-shrink-0 mt-0.5`} />
+            <div className="flex-1 min-w-0">
+                <p className={`font-black text-sm leading-tight ${v.title}`}>{toast.title}</p>
+                {toast.message && (
+                    <p className="text-white/45 text-[11px] font-medium mt-0.5 leading-snug">{toast.message}</p>
+                )}
+            </div>
+            <button
+                onClick={() => onRemove(toast.id)}
+                className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg text-white/25 hover:text-white/60 hover:bg-white/8 transition-all mt-0.5"
+            >
+                <X size={13} />
+            </button>
+        </motion.div>
+    );
+};
+
+const ToastContainer = ({ toasts, onRemove }) => (
+    /*
+      Desktop  → top-right corner (top-5 right-5)
+      Mobile   → top-center (top-4), safe below status bar, never overlaps bottom nav
+    */
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:top-5 sm:right-5 z-[9999] flex flex-col gap-2.5 w-[calc(100vw-2rem)] sm:w-auto pointer-events-none">
+        <AnimatePresence mode="sync">
+            {toasts.map(t => (
+                <div key={t.id} className="pointer-events-auto">
+                    <Toast toast={t} onRemove={onRemove} />
+                </div>
+            ))}
+        </AnimatePresence>
+    </div>
+);
+
+function useToast() {
+    const [toasts, setToasts] = useState([]);
+    const timers = useRef({});
+
+    const remove = useCallback((id) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+        clearTimeout(timers.current[id]);
+        delete timers.current[id];
+    }, []);
+
+    const show = useCallback((type, title, message = '', duration = 4000) => {
+        const id = Date.now() + Math.random();
+        setToasts(prev => [...prev.slice(-4), { id, type, title, message, duration }]);
+        timers.current[id] = setTimeout(() => remove(id), duration);
+    }, [remove]);
+
+    return { toasts, show, remove };
+}
 
 const inp = "w-full bg-white/5 border border-white/10 rounded-2xl p-3.5 text-white focus:border-brand/60 focus:ring-2 focus:ring-brand/20 outline-none transition-all font-medium text-sm placeholder:text-white/20";
 const lbl = "block text-[9px] font-black text-white/40 uppercase tracking-[0.2em] mb-1.5";
@@ -35,6 +132,7 @@ const TABS = [
 /* ─────────── MAIN COMPONENT ─────────── */
 const Dashboard3 = () => {
     const { logout, user } = useContext(AuthContext);
+    const { toasts, show: showToast, remove: removeToast } = useToast();
     const [activeTab, setActiveTab] = useState('home');
     const [profiles, setProfiles] = useState([]);
     const [activeProfileIndex, setActiveProfileIndex] = useState(0);
@@ -102,6 +200,7 @@ const Dashboard3 = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault(); setSaving(true);
+        const isNew = !profile._id;
         const fd = new FormData();
         Object.keys(profile).forEach(k => {
             if (['customQrLogo', 'profileImage', 'carImage', '_id', '__v'].includes(k)) return;
@@ -118,16 +217,38 @@ const Dashboard3 = () => {
             const ui = ref.data.findIndex(p => p.uniqueId === res.data.uniqueId);
             setActiveProfileIndex(ui); setProfile(ref.data[ui]);
             setSuccess(true); setTimeout(() => setSuccess(false), 3000);
-        } catch (err) { console.error(err); }
+            showToast(
+                'success',
+                isNew ? 'Profile Created!' : 'Profile Saved!',
+                isNew
+                    ? `"${res.data.carName || 'New profile'}" is live and ready.`
+                    : `Changes saved to "${res.data.carName || 'your profile'}".`
+            );
+        } catch (err) {
+            console.error(err);
+            showToast('error', 'Save Failed', 'Something went wrong. Please try again.');
+        }
         setSaving(false);
     };
 
     const downloadQR = () => {
         const node = document.getElementById('d3-sticker-dl');
-        if (!node) return; setDownloading(true);
+        if (!node) return;
+        setDownloading(true);
+        showToast('info', 'Generating QR Sticker…', 'Your high-res sticker is being prepared.');
         toPng(node, { quality: 1, pixelRatio: 4, backgroundColor: null })
-            .then(url => { const a = document.createElement('a'); a.download = `ScanMyRide-${profile.uniqueId}.png`; a.href = url; a.click(); setDownloading(false); })
-            .catch(() => setDownloading(false));
+            .then(url => {
+                const a = document.createElement('a');
+                a.download = `ScanMyRide-${profile.uniqueId}.png`;
+                a.href = url;
+                a.click();
+                setDownloading(false);
+                showToast('success', 'QR Sticker Downloaded!', 'Check your downloads folder.');
+            })
+            .catch(() => {
+                setDownloading(false);
+                showToast('error', 'Download Failed', 'Could not generate the sticker image.');
+            });
     };
 
     if (loading) return (
@@ -141,14 +262,17 @@ const Dashboard3 = () => {
 
     /* ── stat cards for home view ── */
     const stats = [
+        { label: 'QR Scans', value: profile.scanCount || 0, icon: ScanLine, color: '#a78bfa' },
         { label: 'Fleet Size', value: profiles.length || 0, icon: Car, color: '#f4b00b' },
-        { label: 'Profile Type', value: profile.profileType?.toUpperCase() || '—', icon: User, color: '#60a5fa' },
         { label: 'Visibility', value: profile.isPublic ? 'PUBLIC' : 'PRIVATE', icon: Eye, color: '#34d399' },
         { label: 'Emergency', value: profile.emergencyMode ? 'ACTIVE' : 'OFF', icon: AlertCircle, color: profile.emergencyMode ? '#f87171' : '#a1a1aa' },
     ];
 
     return (
         <div className="min-h-screen bg-[#0c0c0e] text-white flex" style={{ fontFamily: 'Outfit, sans-serif' }}>
+
+            {/* ── TOAST NOTIFICATIONS ── */}
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
 
             {/* ── LEFT SIDEBAR ── */}
             <aside className="hidden lg:flex w-[72px] flex-shrink-0 flex-col items-center py-7 gap-5 border-r border-white/5 bg-black/40 fixed h-full z-50">
@@ -327,6 +451,12 @@ const Dashboard3 = () => {
                                                     <StylishQR id="d3-sticker-dl" value={publicUrl} isForDownload bgColor={profile.themeColor} />
                                                 </div>
                                                 <p className="text-[9px] text-white/20 font-bold text-center tracking-wider">/p/{profile.uniqueId}</p>
+                                                {/* Scan Count Badge */}
+                                                <div className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-violet-500/10 border border-violet-500/20">
+                                                    <ScanLine size={15} className="text-violet-400 flex-shrink-0" />
+                                                    <span className="text-violet-300 font-black text-sm">{profile.scanCount || 0}</span>
+                                                    <span className="text-violet-400/60 font-bold text-[10px] uppercase tracking-widest">people scanned</span>
+                                                </div>
                                             </>
                                         ) : (
                                             <div className="flex flex-col items-center gap-3 py-8">
