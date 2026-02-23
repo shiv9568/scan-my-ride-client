@@ -280,24 +280,45 @@ const Dashboard3 = () => {
         setSaving(false);
     };
 
-    const downloadQR = () => {
+    const downloadQR = async () => {
         const node = document.getElementById('d3-sticker-dl');
         if (!node) return;
         setDownloading(true);
         showToast('info', 'Generating QR Sticker…', 'Your high-res sticker is being prepared.');
-        toPng(node, { quality: 1, pixelRatio: 4, backgroundColor: null })
-            .then(url => {
-                const a = document.createElement('a');
-                a.download = `ScanMyRide-${profile.uniqueId}.png`;
-                a.href = url;
-                a.click();
-                setDownloading(false);
-                showToast('success', 'QR Sticker Downloaded!', 'Check your downloads folder.');
-            })
-            .catch(() => {
-                setDownloading(false);
-                showToast('error', 'Download Failed', 'Could not generate the sticker image.');
-            });
+
+        try {
+            // Convert cross-origin images to base64 so html-to-image can render them
+            const imgs = node.querySelectorAll('img');
+            const originals = [];
+            for (const img of imgs) {
+                if (img.src && img.src.startsWith('http')) {
+                    originals.push({ el: img, src: img.src });
+                    try {
+                        const resp = await fetch(img.src);
+                        const blob = await resp.blob();
+                        const dataUrl = await new Promise(r => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => r(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                        img.src = dataUrl;
+                    } catch { /* keep original src if fetch fails */ }
+                }
+            }
+
+            const url = await toPng(node, { quality: 1, pixelRatio: 4, backgroundColor: null });
+            const a = document.createElement('a');
+            a.download = `ScanMyRide-${profile.uniqueId}.png`;
+            a.href = url;
+            a.click();
+            showToast('success', 'QR Sticker Downloaded!', 'Check your downloads folder.');
+
+            // Restore original URLs
+            originals.forEach(o => { o.el.src = o.src; });
+        } catch {
+            showToast('error', 'Download Failed', 'Could not generate the sticker image.');
+        }
+        setDownloading(false);
     };
 
     /* ── Welcome flow handler ── */
