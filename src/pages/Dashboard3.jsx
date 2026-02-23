@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import Logo from '../components/Logo';
 import { AuthContext } from '../context/AuthContext';
 import api, { API_URL } from '../api/axios';
@@ -6,6 +6,7 @@ import StylishQR from '../components/StylishQR';
 import { toPng } from 'html-to-image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import WelcomeFlow from './WelcomeFlow';
 import {
     LogOut, ExternalLink, Download, User, Car, Plus,
     QrCode, Settings, ShieldCheck, Eye, EyeOff,
@@ -129,6 +130,13 @@ const TABS = [
     { id: 'settings', icon: Settings, label: 'Settings' },
 ];
 
+/* ────── Profile type display helpers ────── */
+const PROFILE_TYPE_META = {
+    car: { label: 'My Vehicle', short: 'Vehicle', emoji: '🚗' },
+    business: { label: 'Brand / Business', short: 'Brand', emoji: '📢' },
+    portfolio: { label: 'Portfolio', short: 'Portfolio', emoji: '💼' },
+};
+
 /* ─────────── MAIN COMPONENT ─────────── */
 const Dashboard3 = () => {
     const { logout, user } = useContext(AuthContext);
@@ -137,13 +145,15 @@ const Dashboard3 = () => {
     const [profiles, setProfiles] = useState([]);
     const [activeProfileIndex, setActiveProfileIndex] = useState(0);
     const [showFleet, setShowFleet] = useState(false);
+    // Welcome flow: show once per user session (keyed by user id)
+    const [showWelcome, setShowWelcome] = useState(false);
     const [profile, setProfile] = useState({
         carName: '', ownerName: '', phoneNumber: '', profession: '',
         instagram: '', linkedin: '', emergencyContact: '', bloodGroup: '',
         city: '', isPublic: true, showPhone: true, emergencyMode: false,
         uniqueId: '', themeColor: '#f4b00b', selectedTheme: 'carbon',
         uiMode: 'dark', fontStyle: 'font-outfit', profileType: 'car',
-        resumeLink: '', workDetails: '', youtubeLink: '',
+        resumeLink: '', workDetails: '', youtubeLink: '', carCompany: '',
         specs: { hp: '', torque: '', engine: '', mods: '' }
     });
     const [selectedFile, setSelectedFile] = useState(null);
@@ -155,7 +165,7 @@ const Dashboard3 = () => {
     const [downloading, setDownloading] = useState(false);
     const [success, setSuccess] = useState(false);
 
-    const publicUrl = `${import.meta.env.VITE_FRONTEND_URL || window.location.origin}/p/${profile.uniqueId}`;
+    const publicUrl = `${(import.meta.env.VITE_FRONTEND_URL || window.location.origin).replace(/\/$/, "")}/p/${profile.uniqueId}`;
 
     useEffect(() => {
         const fetch = async () => {
@@ -170,12 +180,23 @@ const Dashboard3 = () => {
                     setProfile({ ...p, customQrLogo: p.customQrLogo || '' });
                     if (p.profileImage) setPreview((p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`);
                     if (p.carImage) setCarPreview((p.carImage.startsWith('http') || p.carImage.startsWith('data:')) ? p.carImage : `${API_URL}/${p.carImage}`);
+                    // User already has a profile — no welcome needed
+                    setShowWelcome(false);
+                } else {
+                    // Brand new user — check if they've already seen welcome
+                    const welcomeKey = `smr_welcomed_${user?._id || 'guest'}`;
+                    if (!localStorage.getItem(welcomeKey)) {
+                        setShowWelcome(true);
+                    } else {
+                        // Seen welcome but no profiles yet — go to identity tab
+                        setActiveTab('identity');
+                    }
                 }
                 setLoading(false);
             } catch { setLoading(false); }
         };
         fetch();
-    }, []);
+    }, [user]);
 
     const switchProfile = (i) => {
         setActiveProfileIndex(i);
@@ -188,7 +209,7 @@ const Dashboard3 = () => {
     };
 
     const addNewCar = () => {
-        setProfile({ carName: '', ownerName: '', phoneNumber: '', profession: '', instagram: '', linkedin: '', emergencyContact: '', bloodGroup: '', city: '', isPublic: true, showPhone: true, emergencyMode: false, themeColor: '#f4b00b', selectedTheme: 'carbon', uiMode: 'dark', fontStyle: 'font-outfit', profileType: 'car', resumeLink: '', workDetails: '', youtubeLink: '', specs: { hp: '', torque: '', engine: '', mods: '' }, uniqueId: '' });
+        setProfile({ carName: '', ownerName: '', phoneNumber: '', profession: '', instagram: '', linkedin: '', emergencyContact: '', bloodGroup: '', city: '', isPublic: true, showPhone: true, emergencyMode: false, themeColor: '#f4b00b', selectedTheme: 'carbon', uiMode: 'dark', fontStyle: 'font-outfit', profileType: 'car', resumeLink: '', workDetails: '', youtubeLink: '', carCompany: '', specs: { hp: '', torque: '', engine: '', mods: '' }, uniqueId: '' });
         setActiveProfileIndex(-1); setPreview(null); setCarPreview(null); setSelectedFile(null); setSelectedCarFile(null);
         setShowFleet(false); setActiveTab('identity');
     };
@@ -251,6 +272,16 @@ const Dashboard3 = () => {
             });
     };
 
+    /* ── Welcome flow handler ── */
+    const handleWelcomeSelect = (type) => {
+        const welcomeKey = `smr_welcomed_${user?._id || 'guest'}`;
+        localStorage.setItem(welcomeKey, '1');
+        setShowWelcome(false);
+        // Pre-select the profile type and send to identity setup
+        setProfile(prev => ({ ...prev, profileType: type }));
+        setActiveTab('identity');
+    };
+
     if (loading) return (
         <div className="min-h-screen bg-[#0c0c0e] flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
@@ -270,6 +301,15 @@ const Dashboard3 = () => {
 
     return (
         <div className="min-h-screen bg-[#0c0c0e] text-white flex" style={{ fontFamily: 'Outfit, sans-serif' }}>
+
+            {/* ── WELCOME FLOW OVERLAY (first-time users) ── */}
+            <AnimatePresence>
+                {showWelcome && (
+                    <motion.div key="welcome" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <WelcomeFlow userName={user?.name} onSelect={handleWelcomeSelect} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* ── TOAST NOTIFICATIONS ── */}
             <ToastContainer toasts={toasts} onRemove={removeToast} />
@@ -405,7 +445,7 @@ const Dashboard3 = () => {
                                         <div className="flex gap-6 mt-6 pt-6 border-t border-white/8">
                                             {[
                                                 { v: profile.bloodGroup || '—', l: 'Blood Group' },
-                                                { v: profile.profileType?.toUpperCase() || '—', l: 'Mode' },
+                                                { v: PROFILE_TYPE_META[profile.profileType]?.emoji + ' ' + (PROFILE_TYPE_META[profile.profileType]?.short || '—'), l: 'Profile Type' },
                                                 { v: profile.isPublic ? '🟢 On' : '🔴 Off', l: 'Visibility' },
                                                 { v: profile.emergencyMode ? '🚨 SOS' : '✅ Safe', l: 'Emergency' },
                                             ].map(s => (
@@ -445,10 +485,10 @@ const Dashboard3 = () => {
                                         {profile.uniqueId ? (
                                             <>
                                                 <div className="scale-[0.75] -my-4">
-                                                    <StylishQR id="stylish-sticker" value={publicUrl} bgColor={profile.themeColor} />
+                                                    <StylishQR id="stylish-sticker" value={publicUrl} bgColor={profile.themeColor} carCompany={profile.carCompany || ''} />
                                                 </div>
                                                 <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                                                    <StylishQR id="d3-sticker-dl" value={publicUrl} isForDownload bgColor={profile.themeColor} />
+                                                    <StylishQR id="d3-sticker-dl" value={publicUrl} isForDownload bgColor={profile.themeColor} carCompany={profile.carCompany || ''} />
                                                 </div>
                                                 <p className="text-[9px] text-white/20 font-bold text-center tracking-wider">/p/{profile.uniqueId}</p>
                                                 {/* Scan Count Badge */}
@@ -497,7 +537,7 @@ const Dashboard3 = () => {
                                                             </div>
                                                         </div>
                                                         {/* type */}
-                                                        <div className="text-[9px] font-black uppercase tracking-wider text-white/40">{p.profileType || 'car'}</div>
+                                                        <div className="text-[9px] font-black uppercase tracking-wider text-white/40">{PROFILE_TYPE_META[p.profileType]?.short || p.profileType || 'Vehicle'}</div>
                                                         {/* status */}
                                                         <div className="flex items-center gap-1.5">
                                                             <div className={`w-1.5 h-1.5 rounded-full ${p.isPublic ? 'bg-green-400' : 'bg-red-400'}`} />
@@ -541,7 +581,7 @@ const Dashboard3 = () => {
 
                                         {/* Profile Type */}
                                         <GlassCard className="p-4">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-3">Profile Mode</p>
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-3">Profile Purpose</p>
                                             <div className="flex flex-col gap-2">
                                                 {['car', 'business', 'portfolio'].map(t => (
                                                     <button key={t} type="button" onClick={() => setProfile(p => ({ ...p, profileType: t }))}
@@ -556,10 +596,28 @@ const Dashboard3 = () => {
                                     {/* Right: Form fields */}
                                     <div className="lg:col-span-2 space-y-4">
                                         <GlassCard className="p-5 space-y-4">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-white/30">Basic Info</p>
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{profile.profileType === 'car' ? ' Vehicle Info' : profile.profileType === 'business' ? ' Brand Info' : ' Portfolio Info'}</p>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div><label className={lbl}>{profile.profileType === 'car' ? 'Car Name' : 'Brand Name'}</label><input name="carName" value={profile.carName} onChange={handleChange} className={inp} placeholder="Matte Black Mustang" required /></div>
-                                                <div><label className={lbl}>Owner Name</label><input name="ownerName" value={profile.ownerName} onChange={handleChange} className={inp} placeholder="John Doe" /></div>
+                                                <div><label className={lbl}>{profile.profileType === 'car' ? 'Vehicle Name' : profile.profileType === 'business' ? 'Brand / Business Name' : 'Your Name'}</label><input name="carName" value={profile.carName} onChange={handleChange} className={inp} placeholder={profile.profileType === 'car' ? 'Matte Black Mustang' : profile.profileType === 'business' ? 'My Awesome Brand' : 'John Doe'} required /></div>
+                                                <div><label className={lbl}>{profile.profileType === 'business' ? 'Owner / Founder' : 'Owner Name'}</label><input name="ownerName" value={profile.ownerName} onChange={handleChange} className={inp} placeholder="John Doe" /></div>
+                                                {profile.profileType === 'car' && (
+                                                    <div className="sm:col-span-2">
+                                                        <label className={lbl}>Car Company / Brand <span className="text-brand">★ Logo on QR</span></label>
+                                                        <input
+                                                            name="carCompany"
+                                                            value={profile.carCompany || ''}
+                                                            onChange={handleChange}
+                                                            className={inp}
+                                                            placeholder="e.g. BMW, Toyota, Honda, Maruti Suzuki..."
+                                                            list="car-company-list"
+                                                            autoComplete="off"
+                                                        />
+                                                        <datalist id="car-company-list">
+                                                            {['Toyota', 'Honda', 'BMW', 'Mercedes', 'Audi', 'Ford', 'Volkswagen', 'Hyundai', 'Kia', 'Skoda', 'Tata', 'Mahindra', 'Maruti Suzuki', 'Nissan', 'Renault', 'Jeep', 'Lamborghini', 'Ferrari', 'Porsche', 'Chevrolet', 'Dodge', 'Tesla', 'Volvo', 'Lexus', 'Subaru', 'Mitsubishi'].map(b => <option key={b} value={b} />)}
+                                                        </datalist>
+                                                        <p className="text-[9px] text-brand/60 font-black mt-1.5 ml-1">✦ Choose your brand to display logo in QR code center</p>
+                                                    </div>
+                                                )}
                                                 <div><label className={lbl}>Phone</label><input name="phoneNumber" value={profile.phoneNumber} onChange={handleChange} className={inp} placeholder="+91 98765 43210" /></div>
                                                 <div><label className={lbl}>Profession</label><input name="profession" value={profile.profession} onChange={handleChange} className={inp} placeholder="Car Enthusiast" /></div>
                                                 <div className="sm:col-span-2"><label className={lbl}>City</label><input name="city" value={profile.city} onChange={handleChange} className={inp} placeholder="Mumbai, India" /></div>
@@ -593,10 +651,18 @@ const Dashboard3 = () => {
                                             </GlassCard>
                                         )}
 
-                                        {profile.profileType !== 'car' && (
+                                        {profile.profileType === 'business' && (
                                             <GlassCard className="p-5 space-y-4">
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-blue-400">Professional</p>
-                                                <div><label className={lbl}>Summary</label><textarea name="workDetails" value={profile.workDetails} onChange={handleChange} className={inp + ' min-h-[90px] resize-none'} placeholder="Brief professional intro..." /></div>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-violet-400"> Brand Details</p>
+                                                <div><label className={lbl}>Business Description / Tagline</label><textarea name="workDetails" value={profile.workDetails} onChange={handleChange} className={inp + ' min-h-[90px] resize-none'} placeholder="What does your brand do? What makes it special?" /></div>
+                                                <div><label className={lbl}>Website / Campaign Link</label><input name="resumeLink" value={profile.resumeLink} onChange={handleChange} className={inp} placeholder="https://yourbrand.com" /></div>
+                                                <div><label className={lbl}>YouTube / Promo Video</label><input name="youtubeLink" value={profile.youtubeLink || ''} onChange={handleChange} className={inp} placeholder="https://youtube.com/..." /></div>
+                                            </GlassCard>
+                                        )}
+                                        {profile.profileType === 'portfolio' && (
+                                            <GlassCard className="p-5 space-y-4">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-blue-400"> Professional</p>
+                                                <div><label className={lbl}>Summary / Bio</label><textarea name="workDetails" value={profile.workDetails} onChange={handleChange} className={inp + ' min-h-[90px] resize-none'} placeholder="Brief professional intro..." /></div>
                                                 <div><label className={lbl}>Portfolio / Resume Link</label><input name="resumeLink" value={profile.resumeLink} onChange={handleChange} className={inp} placeholder="https://..." /></div>
                                             </GlassCard>
                                         )}
