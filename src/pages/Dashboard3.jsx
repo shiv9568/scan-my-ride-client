@@ -16,6 +16,33 @@ import {
 } from 'lucide-react';
 
 /* ── tiny helpers ── */
+
+// Compress images client-side for mobile (phones take 5-15MB photos)
+const compressImage = (file, maxWidth = 1200, quality = 0.8) => {
+    return new Promise((resolve) => {
+        // If already small, skip compression
+        if (file.size < 1024 * 1024) { resolve(file); return; }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let w = img.width, h = img.height;
+                if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                canvas.toBlob((blob) => {
+                    resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                }, 'image/jpeg', quality);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+};
+
+const CAR_BRANDS = ['Toyota', 'Honda', 'BMW', 'Mercedes', 'Audi', 'Ford', 'Volkswagen', 'Hyundai', 'Kia', 'Skoda', 'Tata', 'Mahindra', 'Maruti Suzuki', 'Suzuki', 'Nissan', 'Renault', 'Jeep', 'Lamborghini', 'Ferrari', 'Porsche', 'Chevrolet', 'Dodge', 'Tesla', 'Volvo', 'Lexus', 'Subaru', 'Mitsubishi', 'Mazda', 'Fiat', 'Peugeot', 'Citroen', 'Bentley', 'Rolls Royce', 'Maserati', 'Bugatti', 'Land Rover', 'Mini', 'Infiniti', 'Acura', 'Genesis', 'Isuzu', 'Cadillac', 'Lincoln', 'Chrysler', 'Ram', 'Alfa Romeo', 'Seat'];
+
 const GlassCard = ({ children, className = '' }) => (
     <div className={`bg-white/5 backdrop-blur-md border border-white/8 rounded-3xl ${className}`}>
         {children}
@@ -247,7 +274,8 @@ const Dashboard3 = () => {
             );
         } catch (err) {
             console.error(err);
-            showToast('error', 'Save Failed', 'Something went wrong. Please try again.');
+            const errMsg = err.response?.data?.msg || 'Something went wrong. Please try again.';
+            showToast('error', 'Save Failed', errMsg);
         }
         setSaving(false);
     };
@@ -565,7 +593,7 @@ const Dashboard3 = () => {
                                             <div className="relative w-28 h-28 rounded-3xl overflow-hidden border-2 border-white/10 bg-white/5 group cursor-pointer">
                                                 {preview ? <img src={preview} className="w-full h-full object-cover" alt="Avatar" /> : <div className="w-full h-full flex items-center justify-center"><Camera size={28} className="text-white/20" /></div>}
                                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Camera size={20} className="text-brand" /></div>
-                                                <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (f) { setSelectedFile(f); setPreview(URL.createObjectURL(f)); } }} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                                <input type="file" accept="image/*" onChange={async e => { const f = e.target.files[0]; if (f) { const compressed = await compressImage(f); setSelectedFile(compressed); setPreview(URL.createObjectURL(compressed)); } }} className="absolute inset-0 opacity-0 cursor-pointer" />
                                             </div>
                                         </GlassCard>
 
@@ -575,7 +603,7 @@ const Dashboard3 = () => {
                                             <div className="relative w-full h-32 rounded-2xl overflow-hidden border-2 border-white/10 bg-white/5 group cursor-pointer">
                                                 {carPreview ? <img src={carPreview} className="w-full h-full object-cover" alt="Car" /> : <div className="w-full h-full flex items-center justify-center"><Car size={28} className="text-white/20" /></div>}
                                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Camera size={20} className="text-brand" /></div>
-                                                <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (f) { setSelectedCarFile(f); setCarPreview(URL.createObjectURL(f)); } }} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                                <input type="file" accept="image/*" onChange={async e => { const f = e.target.files[0]; if (f) { const compressed = await compressImage(f, 1600, 0.85); setSelectedCarFile(compressed); setCarPreview(URL.createObjectURL(compressed)); } }} className="absolute inset-0 opacity-0 cursor-pointer" />
                                             </div>
                                         </GlassCard>
 
@@ -603,18 +631,15 @@ const Dashboard3 = () => {
                                                 {profile.profileType === 'car' && (
                                                     <div className="sm:col-span-2">
                                                         <label className={lbl}>Car Company / Brand <span className="text-brand">★ Logo on QR</span></label>
-                                                        <input
+                                                        <select
                                                             name="carCompany"
                                                             value={profile.carCompany || ''}
                                                             onChange={handleChange}
                                                             className={inp}
-                                                            placeholder="e.g. BMW, Toyota, Honda, Maruti Suzuki..."
-                                                            list="car-company-list"
-                                                            autoComplete="off"
-                                                        />
-                                                        <datalist id="car-company-list">
-                                                            {['Toyota', 'Honda', 'BMW', 'Mercedes', 'Audi', 'Ford', 'Volkswagen', 'Hyundai', 'Kia', 'Skoda', 'Tata', 'Mahindra', 'Maruti Suzuki', 'Nissan', 'Renault', 'Jeep', 'Lamborghini', 'Ferrari', 'Porsche', 'Chevrolet', 'Dodge', 'Tesla', 'Volvo', 'Lexus', 'Subaru', 'Mitsubishi'].map(b => <option key={b} value={b} />)}
-                                                        </datalist>
+                                                        >
+                                                            <option value="">Select car brand...</option>
+                                                            {CAR_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+                                                        </select>
                                                         <p className="text-[9px] text-brand/60 font-black mt-1.5 ml-1">✦ Choose your brand to display logo in QR code center</p>
                                                     </div>
                                                 )}
