@@ -130,7 +130,7 @@ const StylishQR = ({ value, id, isForDownload = false, carCompany = '', logoUrl,
             <div style={{ marginTop: '4px', textAlign: 'center', width: '100%', position: 'relative', zIndex: 1 }}>
                 <span style={{
                     color: textColor, fontWeight: 900, fontSize: '28px',
-                    letterSpacing: '-0.05em', textTransform: 'lowercase',
+                    letterSpacing: '-0.05em',
                     display: 'block', lineHeight: '1', opacity: 0.95,
                 }}>
                     ScanMyRide
