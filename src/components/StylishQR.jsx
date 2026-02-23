@@ -133,7 +133,7 @@ const StylishQR = ({ value, id, isForDownload = false, carCompany = '', logoUrl,
                     letterSpacing: '-0.05em', textTransform: 'lowercase',
                     display: 'block', lineHeight: '1', opacity: 0.95,
                 }}>
-                    scanmyride
+                    ScanMyRide
                 </span>
                 {carCompany && (
                     <span style={{
