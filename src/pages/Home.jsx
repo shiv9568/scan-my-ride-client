@@ -176,7 +176,7 @@ const Home = () => {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link to="/register" className="bg-brand text-black px-8 py-4 rounded-2xl font-black text-lg shadow-[0_15px_40px_-10px_rgba(244,176,11,0.5)] hover:brightness-110 transition-all flex items-center justify-center gap-3 group">
-                            Create My Profile Free
+                            Create My Profile
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                         <a href="#how-it-works" className="bg-white text-[var(--text-color)] border-2 border-brand/30 px-8 py-4 rounded-2xl font-black text-lg hover:border-brand transition-all flex items-center justify-center gap-3">
