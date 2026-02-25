@@ -457,60 +457,71 @@ const Dashboard3 = () => {
         setDownloading(true);
         showToast('info', 'Generating QR Sticker…', 'Your high-res sticker is being prepared.');
 
-        // Helper: load any URL (including data: and blob:) into a data URI via canvas
-        const toDataUri = async (src) => {
-            // data: URIs are already inline — safe for canvas, return as-is
+        // ── Utility: convert any URL to an inline data URI ──────────────────────
+        const urlToDataUri = async (src) => {
             if (!src || src.startsWith('data:') || src.startsWith('blob:')) return src;
-
-            // Try standard CORS fetch first
             try {
+                // Same-origin or CORS fetch
                 const resp = await fetch(src, { mode: 'cors', cache: 'no-cache' });
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const blob = await resp.blob();
-                return await new Promise((res) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => res(reader.result);
-                    reader.readAsDataURL(blob);
+                return await new Promise(res => {
+                    const r = new FileReader();
+                    r.onloadend = () => res(r.result);
+                    r.readAsDataURL(blob);
                 });
-            } catch {/* fall through */ }
-
-            // Try loading as an image with crossOrigin attribute (works on some CDNs)
-            try {
-                return await new Promise((res, rej) => {
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.onload = () => {
-                        const c = document.createElement('canvas');
-                        c.width = img.naturalWidth || 500;
-                        c.height = img.naturalHeight || 350;
-                        c.getContext('2d').drawImage(img, 0, 0);
-                        res(c.toDataURL('image/jpeg', 0.92));
-                    };
-                    img.onerror = rej;
-                    // Cache-bust to avoid getting a cached non-CORS response
-                    img.src = `${src}${src.includes('?') ? '&' : '?'}_cb=${Date.now()}`;
-                });
-            } catch {/* fall through */ }
-
-            // All attempts failed — return a transparent 1x1 pixel to prevent canvas taint
-            return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            } catch {
+                // Fallback: load via Image element with crossOrigin
+                try {
+                    return await new Promise((res, rej) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => {
+                            const c = document.createElement('canvas');
+                            c.width = img.naturalWidth || 500;
+                            c.height = img.naturalHeight || 350;
+                            c.getContext('2d').drawImage(img, 0, 0);
+                            res(c.toDataURL('image/jpeg', 0.92));
+                        };
+                        img.onerror = rej;
+                        img.src = src + (src.includes('?') ? '&' : '?') + '_cb=' + Date.now();
+                    });
+                } catch {
+                    // Last resort: transparent 1x1 pixel — prevents canvas taint
+                    return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                }
+            }
         };
 
-        // Small delay — gives mobile browsers time to render the hidden node fully
-        await new Promise(r => setTimeout(r, 600));
+        // ── Utility: wait for an <img> to fully paint its current src ─────────
+        const waitForImg = (img) => new Promise(resolve => {
+            if (img.complete && img.naturalHeight !== 0) return resolve();
+            img.onload = resolve;
+            img.onerror = resolve; // don't hang on broken images
+        });
+
+        // Give the hidden node a moment to mount and layout (important on mobile)
+        await new Promise(r => setTimeout(r, 800));
 
         try {
-            // Convert every <img> to a data URI before calling toPng.
-            // This prevents the canvas from being "tainted" by cross-origin images.
             const imgs = Array.from(node.querySelectorAll('img'));
             const originals = imgs.map(img => ({ el: img, src: img.src }));
 
-            await Promise.all(imgs.map(async (img) => {
-                const safe = await toDataUri(img.src);
-                img.src = safe;
-            }));
+            // Step 1: Convert ALL image srcs to data URIs in parallel
+            const dataUris = await Promise.all(imgs.map(img => urlToDataUri(img.src)));
 
-            // Mobile devices have less memory — cap pixel ratio at 3
+            // Step 2: Swap srcs
+            imgs.forEach((img, i) => { img.src = dataUris[i]; });
+
+            // Step 3: ⚡ CRITICAL — wait for browser to fully paint the new srcs
+            // This is the step that was missing — on mobile the browser hadn't
+            // finished rendering the new data URI before toPng captured the node.
+            await Promise.all(imgs.map(waitForImg));
+
+            // Extra paint frame buffer for mobile GPUs
+            await new Promise(r => setTimeout(r, 200));
+
+            // Cap pixel ratio at 3 — mobile devices have memory limits
             const dpr = Math.min(window.devicePixelRatio || 2, 3);
 
             const url = await toPng(node, {
@@ -518,7 +529,6 @@ const Dashboard3 = () => {
                 pixelRatio: dpr,
                 backgroundColor: null,
                 skipAutoScale: true,
-                // Tell html-to-image to also use CORS for any resources it fetches internally
                 fetchRequestInit: { mode: 'cors', cache: 'no-cache' },
             });
 
@@ -528,11 +538,11 @@ const Dashboard3 = () => {
             a.click();
             showToast('success', 'QR Sticker Downloaded!', 'Check your downloads folder.');
 
-            // Restore original image sources
+            // Restore original srcs
             originals.forEach(o => { o.el.src = o.src; });
         } catch (err) {
             console.error('Download error:', err);
-            showToast('error', 'Download Failed', 'Could not generate the sticker image. Please try again.');
+            showToast('error', 'Download Failed', 'Could not generate the sticker. Please try again.');
         }
         setDownloading(false);
     };
