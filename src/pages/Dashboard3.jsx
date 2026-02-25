@@ -49,6 +49,61 @@ const GlassCard = ({ children, className = '' }) => (
     </div>
 );
 
+/* ──────────── RESPONSIVE QR PREVIEW BOX ────────────
+   StylishQR renders at a fixed pixel size (300px sticker, 600px banner,
+   500px carImage). This wrapper measures the available container width
+   via ResizeObserver and applies a CSS scale so the QR always fits
+   perfectly — no clipping — on any screen size.
+─────────────────────────────────────────────────────── */
+const QR_NATURAL_WIDTH = { sticker: 300, banner: 600, carImage: 500 };
+const QR_NATURAL_HEIGHT = { sticker: 400, banner: 240, carImage: 350 };
+
+const QRPreviewBox = ({ children, variant = 'sticker', padding = 24 }) => {
+    const containerRef = useRef(null);
+    const [scale, setScale] = useState(1);
+
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const naturalW = QR_NATURAL_WIDTH[variant] || 300;
+        const update = () => {
+            const available = el.clientWidth - padding * 2;
+            setScale(Math.min(1, available / naturalW));
+        };
+        update();
+        const ro = new ResizeObserver(update);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [variant, padding]);
+
+    const naturalW = QR_NATURAL_WIDTH[variant] || 300;
+    const naturalH = QR_NATURAL_HEIGHT[variant] || 400;
+
+    return (
+        <div
+            ref={containerRef}
+            style={{
+                width: '100%',
+                height: `${naturalH * scale + padding * 2}px`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+            }}
+        >
+            <div style={{
+                transform: `scale(${scale})`,
+                transformOrigin: 'center center',
+                transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
+                flexShrink: 0,
+            }}>
+                {children}
+            </div>
+        </div>
+    );
+};
+
+
 /* ─────────── TOAST SYSTEM ─────────── */
 const TOAST_VARIANTS = {
     success: {
@@ -181,7 +236,8 @@ const Dashboard3 = () => {
         uniqueId: '', themeColor: '#f4b00b', selectedTheme: 'carbon',
         uiMode: 'dark', fontStyle: 'font-outfit', profileType: 'car',
         resumeLink: '', workDetails: '', youtubeLink: '', carCompany: '',
-        specs: { hp: '', torque: '', engine: '', mods: '' }
+        specs: { hp: '', torque: '', engine: '', mods: '' },
+        qrVariant: 'sticker'
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -204,7 +260,7 @@ const Dashboard3 = () => {
                     const idx = Math.max(0, res.data.findIndex(p => p.uniqueId === lastId));
                     setActiveProfileIndex(idx);
                     const p = res.data[idx];
-                    setProfile({ ...p, customQrLogo: p.customQrLogo || '' });
+                    setProfile({ ...p, customQrLogo: p.customQrLogo || '', qrVariant: p.qrVariant || 'sticker' });
                     if (p.profileImage) setPreview((p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`);
                     if (p.carImage) setCarPreview((p.carImage.startsWith('http') || p.carImage.startsWith('data:')) ? p.carImage : `${API_URL}/${p.carImage}`);
                     // User already has a profile — no welcome needed
@@ -228,7 +284,7 @@ const Dashboard3 = () => {
     const switchProfile = (i) => {
         setActiveProfileIndex(i);
         const p = profiles[i];
-        setProfile({ ...p, customQrLogo: p.customQrLogo || '' });
+        setProfile({ ...p, customQrLogo: p.customQrLogo || '', qrVariant: p.qrVariant || 'sticker' });
         localStorage.setItem('lastProfileId', p.uniqueId);
         setPreview(p.profileImage ? ((p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`) : null);
         setCarPreview(p.carImage ? ((p.carImage.startsWith('http') || p.carImage.startsWith('data:')) ? p.carImage : `${API_URL}/${p.carImage}`) : null);
@@ -236,7 +292,16 @@ const Dashboard3 = () => {
     };
 
     const addNewCar = () => {
-        setProfile({ carName: '', ownerName: '', phoneNumber: '', profession: '', instagram: '', linkedin: '', emergencyContact: '', bloodGroup: '', city: '', isPublic: true, showPhone: true, emergencyMode: false, themeColor: '#f4b00b', selectedTheme: 'carbon', uiMode: 'dark', fontStyle: 'font-outfit', profileType: 'car', resumeLink: '', workDetails: '', youtubeLink: '', carCompany: '', specs: { hp: '', torque: '', engine: '', mods: '' }, uniqueId: '' });
+        setProfile({
+            carName: '', ownerName: '', phoneNumber: '', profession: '',
+            instagram: '', linkedin: '', emergencyContact: '', bloodGroup: '',
+            city: '', isPublic: true, showPhone: true, emergencyMode: false,
+            themeColor: '#f4b00b', selectedTheme: 'carbon', uiMode: 'dark',
+            fontStyle: 'font-outfit', profileType: 'car', resumeLink: '',
+            workDetails: '', youtubeLink: '', carCompany: '',
+            specs: { hp: '', torque: '', engine: '', mods: '' },
+            uniqueId: '', qrVariant: 'sticker'
+        });
         setActiveProfileIndex(-1); setPreview(null); setCarPreview(null); setSelectedFile(null); setSelectedCarFile(null);
         setShowFleet(false); setActiveTab('identity');
     };
@@ -247,23 +312,56 @@ const Dashboard3 = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); setSaving(true);
+        if (e && e.preventDefault) e.preventDefault();
+        setSaving(true);
         const isNew = !profile._id;
         const fd = new FormData();
+
         Object.keys(profile).forEach(k => {
-            if (['customQrLogo', 'profileImage', 'carImage', '_id', '__v'].includes(k)) return;
+            if (['customQrLogo', 'profileImage', 'carImage', '_id', '__v', 'user', 'uniqueId', 'scanCount', 'lastScanned', 'guestbook', 'notifications'].includes(k)) return;
             if (k === 'specs') fd.append('specs', JSON.stringify(profile.specs));
-            else if (profile[k] !== null) fd.append(k, profile[k]);
+            else if (profile[k] !== null && profile[k] !== undefined) fd.append(k, profile[k]);
         });
+
         if (profile._id) fd.append('id', profile._id);
         if (selectedFile) fd.append('profileImage', selectedFile);
         if (selectedCarFile) fd.append('carImage', selectedCarFile);
+
         try {
             const res = await api.post('/api/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-            const ref = await api.get('/api/profile/me');
-            setProfiles(ref.data);
-            const ui = ref.data.findIndex(p => p.uniqueId === res.data.uniqueId);
-            setActiveProfileIndex(ui); setProfile(ref.data[ui]);
+
+            // Use the response directly to update local state
+            const updatedProfile = {
+                ...res.data,
+                qrVariant: res.data.qrVariant || 'sticker', // Safeguard default
+                customQrLogo: res.data.customQrLogo || ''
+            };
+
+            setProfile(updatedProfile);
+            localStorage.setItem('lastProfileId', updatedProfile.uniqueId);
+
+            // Update the profiles array efficiently
+            setProfiles(prev => {
+                const idx = prev.findIndex(p => p.uniqueId === updatedProfile.uniqueId);
+                if (idx !== -1) {
+                    const newArr = [...prev];
+                    newArr[idx] = updatedProfile;
+                    return newArr;
+                }
+                return [...prev, updatedProfile];
+            });
+
+            if (isNew) {
+                localStorage.setItem('lastProfileId', updatedProfile.uniqueId);
+                // The profile is already in the 'profiles' array via setProfiles above.
+                // We should find its index in the newly updated state.
+                setProfiles(prev => {
+                    const newIdx = prev.findIndex(p => p.uniqueId === updatedProfile.uniqueId);
+                    if (newIdx !== -1) setActiveProfileIndex(newIdx);
+                    return prev;
+                });
+            }
+
             setSuccess(true); setTimeout(() => setSuccess(false), 3000);
             showToast(
                 'success',
@@ -274,17 +372,93 @@ const Dashboard3 = () => {
             );
         } catch (err) {
             console.error(err);
-            const errMsg = err.response?.data?.msg || 'Something went wrong. Please try again.';
-            showToast('error', 'Save Failed', errMsg);
+            const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout');
+            const errMsg = isTimeout
+                ? 'The server is taking a moment to wake up. Please wait 10 seconds and try again.'
+                : err.response?.data?.msg || 'Something went wrong. Please try again.';
+
+            showToast('error', isTimeout ? 'Server Waking Up...' : 'Save Failed', errMsg);
         }
         setSaving(false);
     };
+
+    // Atomic: select a QR variant and immediately persist it
+    // This avoids the React async-state race condition where clicking
+    // a variant and then 'Save' could save the old variant value.
+    const saveQrVariant = async (variantId) => {
+        if (!profile._id || saving) return;
+
+        // 1. Optimistic Update
+        const oldVariant = profile.qrVariant;
+        setProfile(prev => ({ ...prev, qrVariant: variantId }));
+        setSaving(true);
+
+        const fd = new FormData();
+        const current = { ...profile, qrVariant: variantId };
+
+        Object.keys(current).forEach(k => {
+            if (['customQrLogo', 'profileImage', 'carImage', '_id', '__v', 'user', 'uniqueId', 'scanCount', 'lastScanned', 'guestbook', 'notifications'].includes(k)) return;
+            if (k === 'specs') fd.append('specs', JSON.stringify(current.specs));
+            else if (current[k] !== null && current[k] !== undefined) fd.append(k, current[k]);
+        });
+        fd.append('id', profile._id);
+
+        try {
+            const res = await api.post('/api/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+
+            // Ensure we update localStorage so re-fetches don't reset index
+            localStorage.setItem('lastProfileId', res.data.uniqueId);
+
+            const savedVariant = res.data.qrVariant || 'sticker';
+
+            // Patch ONLY the qrVariant in local state — don't overwrite the full profile
+            // (overwriting can cause profileImage/carImage to flicker from base64 re-parses)
+            setProfile(prev => prev._id === res.data._id
+                ? { ...prev, qrVariant: savedVariant }
+                : prev
+            );
+
+            setProfiles(prev => {
+                const idx = prev.findIndex(p => p._id === res.data._id);
+                if (idx !== -1) {
+                    const arr = [...prev];
+                    arr[idx] = { ...arr[idx], qrVariant: savedVariant };
+                    return arr;
+                }
+                return prev;
+            });
+
+            showToast('success', 'Design Saved!', `QR style set to "${variantId === 'carImage' ? 'Photo' : variantId === 'banner' ? 'Industrial' : 'Sticker'}".`);
+        } catch (err) {
+            console.error(err);
+            // ⚠️ Do NOT revert the visual selection — keep the optimistic update.
+            // The user can see what they selected and retry if needed.
+
+            const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout');
+            const isOffline = err.message?.includes('Network Error') || !navigator.onLine;
+
+            const title = isOffline ? 'No Internet' : isTimeout ? 'Server Waking Up...' : 'Save Failed';
+            const msg = isOffline
+                ? 'You appear to be offline. Template selected locally — save again when connected.'
+                : isTimeout
+                    ? 'Server took too long to respond. Please try saving again in a moment.'
+                    : 'Could not save QR design. Please try again.';
+
+            showToast('error', title, msg);
+        } finally {
+            setSaving(false);
+        }
+    };
+
 
     const downloadQR = async () => {
         const node = document.getElementById('d3-sticker-dl');
         if (!node) return;
         setDownloading(true);
         showToast('info', 'Generating QR Sticker…', 'Your high-res sticker is being prepared.');
+
+        // Small delay to ensure design changes are reflected in the hidden node
+        await new Promise(r => setTimeout(r, 300));
 
         try {
             // Convert cross-origin images to base64 so html-to-image can render them
@@ -481,13 +655,7 @@ const Dashboard3 = () => {
                                                 className="flex items-center gap-2 px-5 py-2.5 bg-brand text-black rounded-2xl font-black text-sm hover:brightness-110 transition-all shadow-[0_8px_20px_rgba(244,176,11,0.3)]">
                                                 <ExternalLink size={16} /> View Profile
                                             </a>
-                                            {profile.uniqueId && (
-                                                <button onClick={downloadQR} disabled={downloading}
-                                                    className="flex items-center gap-2 px-5 py-2.5 bg-white/10 border border-white/15 text-white rounded-2xl font-black text-sm hover:bg-white/15 transition-all">
-                                                    <Download size={16} className={downloading ? 'animate-bounce' : ''} />
-                                                    {downloading ? 'Generating...' : 'QR Sticker'}
-                                                </button>
-                                            )}
+                                            {/* Moved download button */}
                                         </div>
 
                                         {/* Inline mini stats */}
@@ -533,18 +701,71 @@ const Dashboard3 = () => {
                                         </div>
                                         {profile.uniqueId ? (
                                             <>
-                                                <div className="scale-[0.75] -my-4">
-                                                    <StylishQR id="stylish-sticker" value={publicUrl} bgColor={profile.themeColor} carCompany={profile.carCompany || ''} />
+                                                <div className="flex flex-col items-center gap-6 w-full">
+                                                    {/* Responsive QR Preview Container */}
+                                                    <div className="w-full bg-black/20 rounded-3xl border border-white/5 overflow-hidden">
+                                                        <QRPreviewBox variant={profile.qrVariant || 'sticker'} padding={20}>
+                                                            <StylishQR
+                                                                id="stylish-sticker"
+                                                                value={publicUrl}
+                                                                bgColor={profile.themeColor}
+                                                                carCompany={profile.carCompany || ''}
+                                                                variant={profile.qrVariant || 'sticker'}
+                                                                carImage={carPreview}
+                                                                ownerName={profile.ownerName}
+                                                            />
+                                                        </QRPreviewBox>
+                                                    </div>
+
+                                                    {/* Quick Variant Toggle on Home Tab */}
+                                                    <div className="w-full flex flex-col gap-3 p-1.5 bg-white/5 rounded-2xl border border-white/5">
+                                                        <p className="text-center text-[9px] font-black uppercase tracking-widest text-white/30 pt-1">Select &amp; Save QR Design</p>
+                                                        <div className="flex gap-2 w-full">
+                                                            {[
+                                                                { id: 'sticker', label: 'Sticker' },
+                                                                { id: 'banner', label: 'Industrial' },
+                                                                { id: 'carImage', label: 'Photo' }
+                                                            ].map(v => (
+                                                                <button key={v.id}
+                                                                    onClick={() => saveQrVariant(v.id)}
+                                                                    disabled={saving}
+                                                                    className={`flex-1 py-2 px-1 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all disabled:opacity-50 ${profile.qrVariant === v.id
+                                                                        ? 'bg-brand text-black ring-2 ring-brand/50'
+                                                                        : 'text-white/30 hover:bg-white/5'
+                                                                        }`}>
+                                                                    {saving && profile.qrVariant === v.id ? '...' : v.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        {!profile._id && (
+                                                            <p className="text-center text-[9px] text-yellow-400/70 pb-1">Save your profile first to lock in a design.</p>
+                                                        )}
+                                                    </div>
                                                 </div>
+
                                                 <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                                                    <StylishQR id="d3-sticker-dl" value={publicUrl} isForDownload bgColor={profile.themeColor} carCompany={profile.carCompany || ''} />
+                                                    <StylishQR
+                                                        id="d3-sticker-dl"
+                                                        value={publicUrl}
+                                                        isForDownload
+                                                        bgColor={profile.themeColor}
+                                                        carCompany={profile.carCompany || ''}
+                                                        variant={profile.qrVariant || 'sticker'}
+                                                        carImage={carPreview}
+                                                        ownerName={profile.ownerName}
+                                                    />
                                                 </div>
-                                                <p className="text-[9px] text-white/20 font-bold text-center tracking-wider">/p/{profile.uniqueId}</p>
+                                                <p className="text-[9px] text-white/20 font-bold text-center tracking-wider mt-4">/p/{profile.uniqueId}</p>
                                                 {/* Scan Count Badge */}
-                                                <div className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-violet-500/10 border border-violet-500/20">
-                                                    <ScanLine size={15} className="text-violet-400 flex-shrink-0" />
-                                                    <span className="text-violet-300 font-black text-sm">{profile.scanCount || 0}</span>
-                                                    <span className="text-violet-400/60 font-bold text-[10px] uppercase tracking-widest">people scanned</span>
+                                                <div className="w-full mt-4 flex items-center justify-center gap-4">
+                                                    <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-violet-500/10 border border-violet-500/20">
+                                                        <ScanLine size={15} className="text-violet-400 flex-shrink-0" />
+                                                        <span className="text-violet-300 font-black text-sm">{profile.scanCount || 0}</span>
+                                                        <span className="text-violet-400/60 font-bold text-[10px] uppercase tracking-widest">scans</span>
+                                                    </div>
+                                                    <button onClick={downloadQR} disabled={downloading} className="flex-1 px-4 py-3 rounded-2xl bg-brand font-black text-black text-xs uppercase flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(244,176,11,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                                        <Download size={15} /> {downloading ? '...' : 'Download'}
+                                                    </button>
                                                 </div>
                                             </>
                                         ) : (
@@ -807,6 +1028,55 @@ const Dashboard3 = () => {
                                             className="w-full h-12 rounded-2xl cursor-pointer border border-white/10 p-1 bg-transparent" />
                                     </GlassCard>
 
+                                    <GlassCard className="p-6 space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-white/30">Scan QR Design</p>
+                                            <div className="px-2 py-0.5 rounded-full bg-brand/10 border border-brand/20">
+                                                <span className="text-[8px] font-black text-brand uppercase tracking-tighter">Live Preview</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Real-time Preview in Theme Tab - Responsive Scaled */}
+                                        <div className="w-full bg-black/20 rounded-3xl border border-white/5 overflow-hidden">
+                                            <QRPreviewBox variant={profile.qrVariant || 'sticker'} padding={24}>
+                                                <StylishQR
+                                                    value={publicUrl || 'https://scanmyride.in'}
+                                                    bgColor={profile.themeColor}
+                                                    carCompany={profile.carCompany || ''}
+                                                    variant={profile.qrVariant || 'sticker'}
+                                                    carImage={carPreview}
+                                                    ownerName={profile.ownerName}
+                                                />
+                                            </QRPreviewBox>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            {[
+                                                { id: 'sticker', name: 'Premium Sticker', desc: 'Classic Rounded' },
+                                                { id: 'banner', name: 'Industrial Banner', desc: 'Alert Theme' },
+                                                { id: 'carImage', name: 'Car Banner', desc: 'Photo Background' },
+                                            ].map(v => (
+                                                <button key={v.id} type="button"
+                                                    onClick={() => saveQrVariant(v.id)}
+                                                    disabled={saving}
+                                                    className={`p-4 rounded-2xl border transition-all text-left group active:scale-[0.98] disabled:opacity-50 ${profile.qrVariant === v.id ? 'border-brand bg-brand/10 shadow-[0_0_20px_rgba(244,176,11,0.15)]' : 'border-white/8 bg-white/3 hover:border-white/20'}`}>
+                                                    <div className={`text-sm font-black mb-1 transition-colors ${profile.qrVariant === v.id ? 'text-brand' : 'text-white'}`}>{v.name}</div>
+                                                    <div className="text-[9px] text-white/30 uppercase font-bold">{v.desc}</div>
+                                                    {profile.qrVariant === v.id && (
+                                                        <motion.div layoutId="qr-active" className="mt-3 w-6 h-6 bg-brand rounded-lg flex items-center justify-center">
+                                                            <Check size={12} className="text-black" />
+                                                        </motion.div>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="p-4 rounded-2xl bg-brand/5 border border-brand/10">
+                                            <p className="text-[10px] text-brand/80 font-bold leading-relaxed">
+                                                ✦ Tip: The "Car Banner" uses your uploaded vehicle image as a backdrop. Make sure to upload a high-quality photo in the Identity tab.
+                                            </p>
+                                        </div>
+                                    </GlassCard>
+
                                     <GlassCard className="p-6 space-y-4">
                                         <p className="text-[9px] font-black uppercase tracking-widest text-white/30">Typography</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -873,7 +1143,7 @@ const Dashboard3 = () => {
                     );
                 })}
             </nav>
-        </div>
+        </div >
     );
 };
 

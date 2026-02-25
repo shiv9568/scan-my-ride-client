@@ -73,7 +73,17 @@ export function getCarLogoUrl(company) {
 /* ─────────────────────────────────────
    Stylish QR Sticker Component
 ───────────────────────────────────── */
-const StylishQR = ({ value, id, isForDownload = false, carCompany = '', logoUrl, bgColor = '#f4b00b' }) => {
+const StylishQR = ({ 
+    value, 
+    id, 
+    isForDownload = false, 
+    carCompany = '', 
+    logoUrl, 
+    bgColor = '#f4b00b',
+    variant = 'sticker', // 'sticker', 'banner', 'carImage'
+    carImage = null,
+    ownerName = ''
+}) => {
     const [logoError, setLogoError] = useState(false);
 
     const resolvedLogoUrl = logoUrl || getCarLogoUrl(carCompany);
@@ -92,6 +102,139 @@ const StylishQR = ({ value, id, isForDownload = false, carCompany = '', logoUrl,
     const textColor = isDark ? '#ffffff' : '#000000';
     const textColorMuted = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.45)';
 
+    /* ── TEMPLATE: BANNER (Yellow/Black Industrial) ── */
+    if (variant === 'banner') {
+        return (
+            <div
+                id={id}
+                style={{
+                    width: '600px',
+                    height: '240px',
+                    backgroundColor: '#f4b00b', // Specific yellow for banner
+                    padding: '2px', // Border space
+                    display: 'flex',
+                    position: 'relative',
+                    fontFamily: "'Outfit', sans-serif",
+                    overflow: 'hidden',
+                    backgroundImage: `repeating-linear-gradient(45deg, #000, #000 10px, transparent 10px, transparent 20px)`, // Hazard stripes border
+                }}
+            >
+                <div style={{
+                    flex: 1,
+                    backgroundColor: '#f4b00b',
+                    margin: '12px',
+                    display: 'flex',
+                    padding: '16px',
+                    gap: '20px',
+                    alignItems: 'center',
+                }}>
+                    {/* Left: QR Area */}
+                    <div style={{
+                        width: '180px',
+                        backgroundColor: '#fff',
+                        borderRadius: '0',
+                        padding: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <QRCode
+                            value={value || 'https://scanmyride.in'}
+                            size={180}
+                            level="H"
+                            fgColor="#000"
+                            style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                        />
+                        <div style={{ marginTop: '8px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 900, color: '#000' }}>ScanMyRide</div>
+                        </div>
+                    </div>
+
+                    {/* Right: Text Area */}
+                    <div style={{ flex: 1, color: '#000', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <h2 style={{ fontSize: '32px', fontWeight: 900, margin: 0, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+                            SCAN TO CONTACT<br />THE VEHICLE OWNER
+                        </h2>
+                        <div style={{ margin: '12px 0', borderTop: '2px solid #000', opacity: 0.2 }} />
+                        <h3 style={{ fontSize: '20px', fontWeight: 700, margin: 0, opacity: 0.8 }}>
+                            वाहन मालिक से संपर्क करने के<br />लिए कोड को स्कैन करें
+                        </h3>
+                        <div style={{ marginTop: '16px', fontSize: '10px', fontWeight: 600, opacity: 0.6 }}>
+                            Use your camera, Google Lens, Paytm or any<br />QR Scanner app to scan the QR tag.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    /* ── TEMPLATE: CAR IMAGE (Premium Overlay) ── */
+    if (variant === 'carImage') {
+        const defaultCarImage = 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1000';
+        return (
+            <div
+                id={id}
+                style={{
+                    width: '500px',
+                    height: '350px',
+                    backgroundColor: '#000',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                    position: 'relative',
+                    fontFamily: "'Outfit', sans-serif",
+                    overflow: 'hidden',
+                    borderRadius: '24px',
+                }}
+            >
+                {/* Background Image */}
+                <img 
+                    src={carImage || defaultCarImage} 
+                    alt="Car" 
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+                
+                {/* Visual Polish: Top gradient */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)' }} />
+
+                {/* Bottom Overlay */}
+                <div style={{
+                    height: '40%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    padding: '20px 30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '24px',
+                    position: 'relative',
+                    zIndex: 2,
+                    borderTopLeftRadius: '100% 10%', // Curved top effect
+                    borderTopRightRadius: '100% 10%',
+                }}>
+                    {/* QR Code */}
+                    <div style={{ width: '100px', height: '100px', flexShrink: 0 }}>
+                        <QRCode
+                            value={value || 'https://scanmyride.in'}
+                            size={100}
+                            level="H"
+                            fgColor="#000"
+                            style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                        />
+                    </div>
+
+                    {/* Branding */}
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '28px', fontWeight: 900, color: '#000', letterSpacing: '-0.05em' }}>ScanMyRide</div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(0,0,0,0.5)', marginTop: '2px' }}>
+                            {ownerName || 'Safety & Contact Profile'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    /* ── DEFAULT TEMPLATE: STICKER (Original) ── */
     return (
         <div
             id={id}
