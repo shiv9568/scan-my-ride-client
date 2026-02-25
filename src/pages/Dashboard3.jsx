@@ -457,40 +457,82 @@ const Dashboard3 = () => {
         setDownloading(true);
         showToast('info', 'Generating QR Sticker…', 'Your high-res sticker is being prepared.');
 
-        // Small delay to ensure design changes are reflected in the hidden node
-        await new Promise(r => setTimeout(r, 300));
+        // Helper: load any URL (including data: and blob:) into a data URI via canvas
+        const toDataUri = async (src) => {
+            // data: URIs are already inline — safe for canvas, return as-is
+            if (!src || src.startsWith('data:') || src.startsWith('blob:')) return src;
+
+            // Try standard CORS fetch first
+            try {
+                const resp = await fetch(src, { mode: 'cors', cache: 'no-cache' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const blob = await resp.blob();
+                return await new Promise((res) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => res(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            } catch {/* fall through */ }
+
+            // Try loading as an image with crossOrigin attribute (works on some CDNs)
+            try {
+                return await new Promise((res, rej) => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        const c = document.createElement('canvas');
+                        c.width = img.naturalWidth || 500;
+                        c.height = img.naturalHeight || 350;
+                        c.getContext('2d').drawImage(img, 0, 0);
+                        res(c.toDataURL('image/jpeg', 0.92));
+                    };
+                    img.onerror = rej;
+                    // Cache-bust to avoid getting a cached non-CORS response
+                    img.src = `${src}${src.includes('?') ? '&' : '?'}_cb=${Date.now()}`;
+                });
+            } catch {/* fall through */ }
+
+            // All attempts failed — return a transparent 1x1 pixel to prevent canvas taint
+            return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        };
+
+        // Small delay — gives mobile browsers time to render the hidden node fully
+        await new Promise(r => setTimeout(r, 600));
 
         try {
-            // Convert cross-origin images to base64 so html-to-image can render them
-            const imgs = node.querySelectorAll('img');
-            const originals = [];
-            for (const img of imgs) {
-                if (img.src && img.src.startsWith('http')) {
-                    originals.push({ el: img, src: img.src });
-                    try {
-                        const resp = await fetch(img.src);
-                        const blob = await resp.blob();
-                        const dataUrl = await new Promise(r => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => r(reader.result);
-                            reader.readAsDataURL(blob);
-                        });
-                        img.src = dataUrl;
-                    } catch { /* keep original src if fetch fails */ }
-                }
-            }
+            // Convert every <img> to a data URI before calling toPng.
+            // This prevents the canvas from being "tainted" by cross-origin images.
+            const imgs = Array.from(node.querySelectorAll('img'));
+            const originals = imgs.map(img => ({ el: img, src: img.src }));
 
-            const url = await toPng(node, { quality: 1, pixelRatio: 4, backgroundColor: null });
+            await Promise.all(imgs.map(async (img) => {
+                const safe = await toDataUri(img.src);
+                img.src = safe;
+            }));
+
+            // Mobile devices have less memory — cap pixel ratio at 3
+            const dpr = Math.min(window.devicePixelRatio || 2, 3);
+
+            const url = await toPng(node, {
+                quality: 1,
+                pixelRatio: dpr,
+                backgroundColor: null,
+                skipAutoScale: true,
+                // Tell html-to-image to also use CORS for any resources it fetches internally
+                fetchRequestInit: { mode: 'cors', cache: 'no-cache' },
+            });
+
             const a = document.createElement('a');
-            a.download = `ScanMyRide-${profile.uniqueId}.png`;
+            a.download = `ScanMyRide-${profile.uniqueId || 'QR'}.png`;
             a.href = url;
             a.click();
             showToast('success', 'QR Sticker Downloaded!', 'Check your downloads folder.');
 
-            // Restore original URLs
+            // Restore original image sources
             originals.forEach(o => { o.el.src = o.src; });
-        } catch {
-            showToast('error', 'Download Failed', 'Could not generate the sticker image.');
+        } catch (err) {
+            console.error('Download error:', err);
+            showToast('error', 'Download Failed', 'Could not generate the sticker image. Please try again.');
         }
         setDownloading(false);
     };

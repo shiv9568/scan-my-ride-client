@@ -73,12 +73,12 @@ export function getCarLogoUrl(company) {
 /* ─────────────────────────────────────
    Stylish QR Sticker Component
 ───────────────────────────────────── */
-const StylishQR = ({ 
-    value, 
-    id, 
-    isForDownload = false, 
-    carCompany = '', 
-    logoUrl, 
+const StylishQR = ({
+    value,
+    id,
+    isForDownload = false,
+    carCompany = '',
+    logoUrl,
     bgColor = '#f4b00b',
     variant = 'sticker', // 'sticker', 'banner', 'carImage'
     carImage = null,
@@ -171,7 +171,21 @@ const StylishQR = ({
 
     /* ── TEMPLATE: CAR IMAGE (Premium Overlay) ── */
     if (variant === 'carImage') {
-        const defaultCarImage = 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1000';
+        // Inline SVG gradient — never cross-origin, never taints the canvas (mobile-safe)
+        const defaultCarImage = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="350">
+                <defs>
+                    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#0d0d1a"/>
+                        <stop offset="50%" style="stop-color:#1a1a2e"/>
+                        <stop offset="100%" style="stop-color:#0a0a0f"/>
+                    </linearGradient>
+                </defs>
+                <rect width="500" height="350" fill="url(#g)"/>
+                <circle cx="420" cy="60" r="120" fill="rgba(244,176,11,0.06)"/>
+                <circle cx="80" cy="280" r="100" fill="rgba(244,176,11,0.04)"/>
+            </svg>`
+        )}`;
         return (
             <div
                 id={id}
@@ -189,12 +203,12 @@ const StylishQR = ({
                 }}
             >
                 {/* Background Image */}
-                <img 
-                    src={carImage || defaultCarImage} 
-                    alt="Car" 
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+                <img
+                    src={carImage || defaultCarImage}
+                    alt="Car"
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                
+
                 {/* Visual Polish: Top gradient */}
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)' }} />
 
