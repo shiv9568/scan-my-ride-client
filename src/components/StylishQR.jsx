@@ -171,21 +171,8 @@ const StylishQR = ({
 
     /* ── TEMPLATE: CAR IMAGE (Premium Overlay) ── */
     if (variant === 'carImage') {
-        // Inline SVG gradient — never cross-origin, never taints the canvas (mobile-safe)
-        const defaultCarImage = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-            `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="350">
-                <defs>
-                    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#0d0d1a"/>
-                        <stop offset="50%" style="stop-color:#1a1a2e"/>
-                        <stop offset="100%" style="stop-color:#0a0a0f"/>
-                    </linearGradient>
-                </defs>
-                <rect width="500" height="350" fill="url(#g)"/>
-                <circle cx="420" cy="60" r="120" fill="rgba(244,176,11,0.06)"/>
-                <circle cx="80" cy="280" r="100" fill="rgba(244,176,11,0.04)"/>
-            </svg>`
-        )}`;
+        // /car.jpg lives in client/public/ → served at root, same-origin, safe for canvas
+        const defaultCarImage = '/car.jpg';
         return (
             <div
                 id={id}
