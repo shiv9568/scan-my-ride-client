@@ -461,7 +461,7 @@ const Dashboard3 = () => {
         const urlToDataUri = async (src) => {
             if (!src || src.startsWith('data:') || src.startsWith('blob:')) return src;
             try {
-                // Same-origin or CORS fetch
+                // Primary: fetch with CORS to get raw bytes as data URI
                 const resp = await fetch(src, { mode: 'cors', cache: 'no-cache' });
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const blob = await resp.blob();
@@ -471,7 +471,7 @@ const Dashboard3 = () => {
                     r.readAsDataURL(blob);
                 });
             } catch {
-                // Fallback: load via Image element with crossOrigin
+                // Fallback: draw via <img crossOrigin> → canvas → dataURL
                 try {
                     return await new Promise((res, rej) => {
                         const img = new Image();
@@ -487,48 +487,70 @@ const Dashboard3 = () => {
                         img.src = src + (src.includes('?') ? '&' : '?') + '_cb=' + Date.now();
                     });
                 } catch {
-                    // Last resort: transparent 1x1 pixel — prevents canvas taint
+                    // Last resort: 1x1 transparent pixel so canvas doesn't get tainted
                     return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                 }
             }
         };
 
-        // ── Utility: wait for an <img> to fully paint its current src ─────────
+        // ── Utility: wait for an <img> to fully load its current src ──────────
         const waitForImg = (img) => new Promise(resolve => {
             if (img.complete && img.naturalHeight !== 0) return resolve();
             img.onload = resolve;
-            img.onerror = resolve; // don't hang on broken images
+            img.onerror = resolve;
         });
 
         // Give the hidden node a moment to mount and layout (important on mobile)
         await new Promise(r => setTimeout(r, 800));
 
         try {
+            // ── Step 1: Inline all <img> srcs as data URIs ──────────────────────
             const imgs = Array.from(node.querySelectorAll('img'));
-            const originals = imgs.map(img => ({ el: img, src: img.src }));
+            const originals = imgs.map(img => ({ el: img, src: img.src, style: img.getAttribute('style') }));
 
-            // Step 1: Convert ALL image srcs to data URIs in parallel
             const dataUris = await Promise.all(imgs.map(img => urlToDataUri(img.src)));
 
-            // Step 2: Swap srcs
-            imgs.forEach((img, i) => { img.src = dataUris[i]; });
+            // Swap srcs + wait for img.decode() — guarantees GPU-level paint
+            await Promise.all(imgs.map(async (img, i) => {
+                img.src = dataUris[i];
+                try {
+                    if (typeof img.decode === 'function') await img.decode();
+                    else await waitForImg(img);
+                } catch (_) {
+                    await waitForImg(img);
+                }
+            }));
 
-            // Step 3: ⚡ CRITICAL — wait for browser to fully paint the new srcs
-            // This is the step that was missing — on mobile the browser hadn't
-            // finished rendering the new data URI before toPng captured the node.
-            await Promise.all(imgs.map(waitForImg));
+            // ── Step 2: Inline any CSS background-image URLs ─────────────────────
+            // Defensive: catches any element using background-image instead of <img>
+            const bgOriginals = [];
+            const allEls = Array.from(node.querySelectorAll('*'));
+            await Promise.all(allEls.map(async (el) => {
+                const computed = window.getComputedStyle(el);
+                const bg = computed.backgroundImage;
+                if (bg && bg !== 'none') {
+                    const match = bg.match(/url\(["']?(https?[^"')]+)["']?\)/);
+                    if (match && match[1]) {
+                        const dataUri = await urlToDataUri(match[1]);
+                        bgOriginals.push({ el, orig: el.style.backgroundImage });
+                        el.style.backgroundImage = `url(${dataUri})`;
+                    }
+                }
+            }));
 
-            // Extra paint frame buffer for mobile GPUs
-            await new Promise(r => setTimeout(r, 200));
+            // ── Step 3: Extra settle buffer — mobile GPUs need more time ─────────
+            await new Promise(r => setTimeout(r, 1000));
 
-            // Cap pixel ratio at 3 — mobile devices have memory limits
-            const dpr = Math.min(window.devicePixelRatio || 2, 3);
+            // Mobile detection for safe DPR: iOS/Android crash on high canvas sizes
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+            const dpr = isMobile ? 2 : Math.min(window.devicePixelRatio || 2, 3);
 
             const url = await toPng(node, {
                 quality: 1,
                 pixelRatio: dpr,
-                backgroundColor: null,
+                backgroundColor: null, // preserve sticker/banner brand colors
                 skipAutoScale: true,
+                cacheBust: true,
                 fetchRequestInit: { mode: 'cors', cache: 'no-cache' },
             });
 
@@ -538,14 +560,16 @@ const Dashboard3 = () => {
             a.click();
             showToast('success', 'QR Sticker Downloaded!', 'Check your downloads folder.');
 
-            // Restore original srcs
+            // Restore original srcs and CSS
             originals.forEach(o => { o.el.src = o.src; });
+            bgOriginals.forEach(o => { o.el.style.backgroundImage = o.orig; });
         } catch (err) {
             console.error('Download error:', err);
             showToast('error', 'Download Failed', 'Could not generate the sticker. Please try again.');
         }
         setDownloading(false);
     };
+
 
     /* ── Welcome flow handler ── */
     const handleWelcomeSelect = (type) => {
