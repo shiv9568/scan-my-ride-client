@@ -835,8 +835,9 @@ const PublicProfile3 = () => {
             try {
                 const { data } = await api.get(`/api/profile/public/${uniqueId}`);
                 setProfile(data); setLoading(false);
-            } catch {
-                if (retries++ < 3) setTimeout(load, 300);
+            } catch (err) {
+                console.error("Profile load err:", err);
+                if (retries++ < 2) setTimeout(load, 500);
                 else { setError(true); setLoading(false); }
             }
         };

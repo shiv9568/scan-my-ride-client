@@ -250,35 +250,34 @@ const Dashboard3 = () => {
 
     const publicUrl = `${(import.meta.env.VITE_FRONTEND_URL || window.location.origin).replace(/\/$/, "")}/p/${profile.uniqueId}`;
 
-    useEffect(() => {
-        const fetch = async () => {
-            try {
-                const res = await api.get('/api/profile/me');
-                if (res.data.length > 0) {
-                    setProfiles(res.data);
-                    const lastId = localStorage.getItem('lastProfileId');
-                    const idx = Math.max(0, res.data.findIndex(p => p.uniqueId === lastId));
-                    setActiveProfileIndex(idx);
-                    const p = res.data[idx];
-                    setProfile({ ...p, customQrLogo: p.customQrLogo || '', qrVariant: p.qrVariant || 'sticker' });
-                    if (p.profileImage) setPreview((p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`);
-                    if (p.carImage) setCarPreview((p.carImage.startsWith('http') || p.carImage.startsWith('data:')) ? p.carImage : `${API_URL}/${p.carImage}`);
-                    // User already has a profile — no welcome needed
-                    setShowWelcome(false);
+    const fetchProfiles = async () => {
+        try {
+            const res = await api.get('/api/profile/me');
+            if (res.data.length > 0) {
+                setProfiles(res.data);
+                const lastId = localStorage.getItem('lastProfileId');
+                const idx = Math.max(0, res.data.findIndex(p => p.uniqueId === lastId));
+                setActiveProfileIndex(idx);
+                const p = res.data[idx];
+                console.log("[Dashboard] Fetched Profile:", p);
+                setProfile({ ...p, customQrLogo: p.customQrLogo || '', qrVariant: p.qrVariant || 'sticker' });
+                if (p.profileImage) setPreview((p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`);
+                if (p.carImage) setCarPreview((p.carImage.startsWith('http') || p.carImage.startsWith('data:')) ? p.carImage : `${API_URL}/${p.carImage}`);
+                setShowWelcome(false);
+            } else {
+                const welcomeKey = `smr_welcomed_${user?._id || 'guest'}`;
+                if (!localStorage.getItem(welcomeKey)) {
+                    setShowWelcome(true);
                 } else {
-                    // Brand new user — check if they've already seen welcome
-                    const welcomeKey = `smr_welcomed_${user?._id || 'guest'}`;
-                    if (!localStorage.getItem(welcomeKey)) {
-                        setShowWelcome(true);
-                    } else {
-                        // Seen welcome but no profiles yet — go to identity tab
-                        setActiveTab('identity');
-                    }
+                    setActiveTab('identity');
                 }
-                setLoading(false);
-            } catch { setLoading(false); }
-        };
-        fetch();
+            }
+            setLoading(false);
+        } catch (err) { console.error("[Dashboard] Error fetching:", err); setLoading(false); }
+    };
+
+    useEffect(() => {
+        fetchProfiles();
     }, [user]);
 
     const switchProfile = (i) => {
@@ -853,50 +852,34 @@ const Dashboard3 = () => {
                                         )}
                                     </GlassCard>
 
+                                    {/* Fleet / Recent scans (Replaced fleet list with recent activity) */}
                                     {/* Fleet List */}
                                     <GlassCard className="lg:col-span-2 p-5">
                                         <div className="flex items-center justify-between mb-4">
                                             <p className="text-[9px] font-black uppercase tracking-widest text-white/30">Your Fleet</p>
-                                            <button onClick={addNewCar} className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand/10 border border-brand/20 text-brand font-black text-[10px] hover:bg-brand/20 transition-all">
-                                                <Plus size={12} /> Add
-                                            </button>
+                                            <button onClick={addNewCar} className="text-[10px] font-black text-brand uppercase hover:underline">+ New Vehicle</button>
                                         </div>
-                                        {profiles.length === 0 ? (
-                                            <div className="text-center py-8 text-white/20 text-xs font-bold">No vehicles yet</div>
-                                        ) : (
-                                            <div className="space-y-2">
-                                                {/* table header */}
-                                                <div className="grid grid-cols-3 gap-2 px-3 pb-2 border-b border-white/5">
-                                                    {['Vehicle', 'Type', 'Status'].map(h => <p key={h} className="text-[8px] font-black uppercase tracking-widest text-white/20">{h}</p>)}
-                                                </div>
-                                                {profiles.map((p, i) => (
-                                                    <button key={p._id} onClick={() => switchProfile(i)}
-                                                        className={`w-full grid grid-cols-3 gap-2 items-center p-3 rounded-2xl transition-all text-left ${activeProfileIndex === i ? 'bg-brand/10 border border-brand/20' : 'hover:bg-white/5 border border-transparent'}`}>
-                                                        {/* name + avatar */}
-                                                        <div className="flex items-center gap-2 min-w-0">
-                                                            <div className="w-8 h-8 rounded-xl flex-shrink-0 overflow-hidden bg-white/5 flex items-center justify-center">
-                                                                {p.profileImage ? <img src={(p.profileImage.startsWith('http') || p.profileImage.startsWith('data:')) ? p.profileImage : `${API_URL}/${p.profileImage}`} className="w-full h-full object-cover" alt="" /> : <Car size={14} className="text-brand/60" />}
-                                                            </div>
-                                                            <div className="min-w-0">
-                                                                <div className="font-black text-xs truncate">{p.carName || 'Unnamed'}</div>
-                                                                <div className="text-[8px] text-white/25 font-bold truncate">{p.ownerName}</div>
-                                                            </div>
-                                                        </div>
-                                                        {/* type */}
-                                                        <div className="text-[9px] font-black uppercase tracking-wider text-white/40">{PROFILE_TYPE_META[p.profileType]?.short || p.profileType || 'Vehicle'}</div>
-                                                        {/* status */}
-                                                        <div className="flex items-center gap-1.5">
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${p.isPublic ? 'bg-green-400' : 'bg-red-400'}`} />
-                                                            <span className="text-[9px] font-bold text-white/40">{p.isPublic ? 'Public' : 'Private'}</span>
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {profiles.map((p, i) => (
+                                                <button key={p.uniqueId} onClick={() => switchProfile(i)}
+                                                    className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${activeProfileIndex === i ? 'bg-brand/10 border-brand/40' : 'bg-white/5 border-transparent hover:border-white/10'}`}>
+                                                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                                        {p.carImage ? <img src={p.carImage.startsWith('http') ? p.carImage : `${API_URL}/${p.carImage}`} className="w-full h-full object-cover" alt="" /> : <Car size={16} className="text-white/20" />}
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <div className="font-black text-xs text-white truncate max-w-[100px]">{p.carName || 'Untitled'}</div>
+                                                        <div className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{p.carCompany || 'Vehicle'}</div>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </GlassCard>
                                 </div>
                             </motion.div>
                         )}
+
+
+
 
                         {/* ══════════ IDENTITY ══════════ */}
                         {activeTab === 'identity' && (
