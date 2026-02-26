@@ -12,6 +12,7 @@ import Dashboard3 from './pages/Dashboard3';
 import PublicProfile3 from './pages/PublicProfile3';
 import Home from './pages/Home';
 import AdminDashboard from './pages/AdminDashboard';
+import InstallPWA from './components/InstallPWA';
 
 const PrivateRoute = ({ children }) => {
   const { token, loading } = useContext(AuthContext);
@@ -54,6 +55,7 @@ function App() {
             } />
             <Route path="/p/:uniqueId" element={<PublicProfile3 />} />
           </Routes>
+          <InstallPWA />
         </Router>
       </AuthProvider>
     </ThemeProvider>
