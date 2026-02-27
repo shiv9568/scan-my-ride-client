@@ -219,6 +219,80 @@ const PROFILE_TYPE_META = {
     portfolio: { label: 'Portfolio', short: 'Portfolio', emoji: '💼' },
 };
 
+/* ────── Change Password Form ────── */
+const ChangePasswordForm = ({ showToast }) => {
+    const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (passwords.newPassword !== passwords.confirmPassword) {
+            return showToast('error', 'Mismatch', 'New passwords do not match');
+        }
+        if (passwords.newPassword.length < 6) {
+            return showToast('error', 'Too Short', 'Password must be at least 6 characters');
+        }
+
+        setLoading(true);
+        try {
+            await api.put('/api/auth/change-password', {
+                currentPassword: passwords.currentPassword,
+                newPassword: passwords.newPassword
+            });
+            showToast('success', 'Success', 'Password changed successfully');
+            setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (err) {
+            showToast('error', 'Failed', err.response?.data?.msg || 'Could not change password');
+        }
+        setLoading(false);
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+                <label className={lbl}>Current Password</label>
+                <input
+                    type="password"
+                    value={passwords.currentPassword}
+                    onChange={e => setPasswords({ ...passwords, currentPassword: e.target.value })}
+                    className={inp}
+                    placeholder="••••••••"
+                    required
+                />
+            </div>
+            <div>
+                <label className={lbl}>New Password</label>
+                <input
+                    type="password"
+                    value={passwords.newPassword}
+                    onChange={e => setPasswords({ ...passwords, newPassword: e.target.value })}
+                    className={inp}
+                    placeholder="••••••••"
+                    required
+                />
+            </div>
+            <div>
+                <label className={lbl}>Confirm New Password</label>
+                <input
+                    type="password"
+                    value={passwords.confirmPassword}
+                    onChange={e => setPasswords({ ...passwords, confirmPassword: e.target.value })}
+                    className={inp}
+                    placeholder="••••••••"
+                    required
+                />
+            </div>
+            <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-white/5 border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 hover:border-brand/30 transition-all active:scale-95 disabled:opacity-50"
+            >
+                {loading ? 'Updating...' : 'Update Password'}
+            </button>
+        </form>
+    );
+};
+
 /* ─────────── MAIN COMPONENT ─────────── */
 const Dashboard3 = () => {
     const { logout, user } = useContext(AuthContext);
@@ -1180,6 +1254,11 @@ const Dashboard3 = () => {
                                         <LogOut size={18} className="text-red-400" />
                                         <div><div className="font-black text-sm text-red-400">Log Out</div><div className="text-[9px] text-red-400/40 font-bold">Sign out of ScanMyRide</div></div>
                                     </button>
+                                </GlassCard>
+
+                                <GlassCard className="p-5 space-y-4">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-white/30">Security</p>
+                                    <ChangePasswordForm showToast={showToast} />
                                 </GlassCard>
                             </motion.div>
                         )}

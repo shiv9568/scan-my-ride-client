@@ -7,6 +7,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 
 import Dashboard3 from './pages/Dashboard3';
 import PublicProfile3 from './pages/PublicProfile3';
@@ -40,6 +41,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/dashboard" element={
               <PrivateRoute>
                 <ErrorBoundary>

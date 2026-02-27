@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight, KeyRound } from 'lucide-react';
 import Logo from '../components/Logo';
 
 const Login = () => {
@@ -83,6 +83,12 @@ const Login = () => {
                                     required
                                 />
                             </div>
+                        </div>
+
+                        <div className="flex justify-end px-2">
+                            <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-brand uppercase tracking-widest hover:brightness-110 transition-all opacity-60 hover:opacity-100 flex items-center gap-1">
+                                <KeyRound size={12} /> Forgot Secret Key?
+                            </Link>
                         </div>
 
                         <button
