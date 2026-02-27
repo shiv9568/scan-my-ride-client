@@ -28,9 +28,22 @@ const ForgotPassword = () => {
             const serverError = err.response?.data?.error;
             const hint = err.response?.data?.hint;
 
-            setError(serverMsg || 'Error sending code');
-            if (serverError || hint) {
-                console.error("Server Error Details:", serverError, hint);
+            if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+                setError('Request timed out. The server might be waking up, please try again in a few seconds.');
+            } else if (!err.response) {
+                setError('Network Error: Unable to reach the security hub. Please check your connection.');
+            } else {
+                setError(serverMsg || 'Error sending code');
+            }
+
+            if (serverError || hint || !err.response) {
+                console.error("Authentication Error Details:", {
+                    msg: serverMsg,
+                    error: serverError,
+                    hint: hint,
+                    code: err.code,
+                    message: err.message
+                });
             }
         }
         setLoading(false);

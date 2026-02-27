@@ -8,7 +8,7 @@ if (!API_URL) {
 
 const api = axios.create({
     baseURL: API_URL,
-    timeout: 30000, // Increased to 30s to handle server cold starts (e.g. Render free tier)
+    timeout: 60000, // Increased to 60s to handle server cold starts + email delay (e.g. Render free tier)
     headers: {
         'Content-Type': 'application/json'
     }
