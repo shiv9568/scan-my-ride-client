@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ArrowLeft, ArrowRight, ShieldCheck, KeyRound, CheckCircle2 } from 'lucide-react';
 import Logo from '../components/Logo';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const ForgotPassword = () => {
     const [step, setStep] = useState(1); // 1: Email, 2: Code+NewPass, 3: Success
@@ -22,11 +20,18 @@ const ForgotPassword = () => {
         setLoading(true);
         setError('');
         try {
-            await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
+            await api.post(`/api/auth/forgot-password`, { email });
             setStep(2);
-            setMessage('A verification code has been logged to the server console. Enter it below.');
+            setMessage('A restoration code has been dispatched to your email. Please check your inbox (and spam folder).');
         } catch (err) {
-            setError(err.response?.data?.msg || 'Error sending code');
+            const serverMsg = err.response?.data?.msg;
+            const serverError = err.response?.data?.error;
+            const hint = err.response?.data?.hint;
+
+            setError(serverMsg || 'Error sending code');
+            if (serverError || hint) {
+                console.error("Server Error Details:", serverError, hint);
+            }
         }
         setLoading(false);
     };
@@ -36,7 +41,7 @@ const ForgotPassword = () => {
         setLoading(true);
         setError('');
         try {
-            await axios.post(`${API_URL}/api/auth/reset-password`, {
+            await api.post(`/api/auth/reset-password`, {
                 email,
                 code,
                 newPassword
