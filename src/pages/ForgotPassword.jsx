@@ -105,7 +105,7 @@ const ForgotPassword = () => {
 
                                 <form onSubmit={handleSendCode} className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Commander Email</label>
+                                        <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Email</label>
                                         <div className="relative">
                                             <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                                             <input
@@ -164,7 +164,7 @@ const ForgotPassword = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">New Secret Key</label>
+                                        <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">New Password</label>
                                         <div className="relative">
                                             <KeyRound className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                                             <input
@@ -201,7 +201,7 @@ const ForgotPassword = () => {
                                     <CheckCircle2 size={40} />
                                 </div>
                                 <h2 className="text-2xl font-black text-white mb-2">Restoration Complete</h2>
-                                <p className="text-white/40 text-sm font-bold leading-relaxed mb-10">Your secret key has been successfully updated. Your access to the fleet is restored.</p>
+                                <p className="text-white/40 text-sm font-bold leading-relaxed mb-10">Your password has been successfully updated. Your access to the fleet is restored.</p>
 
                                 <button
                                     onClick={() => navigate('/login')}

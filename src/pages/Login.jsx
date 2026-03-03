@@ -56,7 +56,7 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-3 group">
-                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Commander Email</label>
+                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Email</label>
                             <div className="relative">
                                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} />
                                 <input
@@ -71,7 +71,7 @@ const Login = () => {
                         </div>
 
                         <div className="space-y-3 group">
-                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Secret Key</label>
+                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} />
                                 <input
@@ -87,7 +87,7 @@ const Login = () => {
 
                         {/* <div className="flex justify-end px-2">
                             <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-brand uppercase tracking-widest hover:brightness-110 transition-all opacity-60 hover:opacity-100 flex items-center gap-1">
-                                <KeyRound size={12} /> Forgot Secret Key?
+                                <KeyRound size={12} /> Forgot Password?
                             </Link>
                         </div> */}
 

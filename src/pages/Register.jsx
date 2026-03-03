@@ -66,7 +66,7 @@ const Register = () => {
                         </div>
 
                         <div className="space-y-3 group">
-                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Commander Email</label>
+                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Email</label>
                             <div className="relative">
                                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} />
                                 <input
@@ -81,7 +81,7 @@ const Register = () => {
                         </div>
 
                         <div className="space-y-3 group">
-                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Secure Secret Key</label>
+                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Secure Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} />
                                 <input
