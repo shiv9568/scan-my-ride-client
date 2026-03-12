@@ -158,9 +158,10 @@ const Toast = ({ toast, onRemove }) => {
             </div>
             <button
                 onClick={() => onRemove(toast.id)}
+                aria-label="Dismiss notification"
                 className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg text-white/25 hover:text-white/60 hover:bg-white/8 transition-all mt-0.5"
             >
-                <X size={13} />
+                <X size={13} aria-hidden="true" />
             </button>
         </motion.div>
     );
@@ -696,9 +697,11 @@ const Dashboard3 = () => {
                         const Icon = t.icon;
                         const active = activeTab === t.id;
                         return (
-                            <button key={t.id} onClick={() => setActiveTab(t.id)} title={t.label}
+                            <button key={t.id} onClick={() => setActiveTab(t.id)}
+                                aria-label={t.label}
+                                aria-current={active ? 'page' : undefined}
                                 className={`w-full aspect-square rounded-2xl flex items-center justify-center transition-all ${active ? 'bg-brand text-black shadow-[0_0_20px_rgba(244,176,11,0.4)]' : 'text-white/30 hover:bg-white/5 hover:text-white/70'}`}>
-                                <Icon size={20} />
+                                <Icon size={20} aria-hidden="true" />
                             </button>
                         );
                     })}
@@ -708,8 +711,8 @@ const Dashboard3 = () => {
                         <ShieldCheck size={20} />
                     </Link>
                 )}
-                <button onClick={logout} title="Logout" className="w-10 h-10 rounded-2xl flex items-center justify-center text-white/20 hover:bg-red-500/10 hover:text-red-400 transition-all">
-                    <LogOut size={20} />
+                <button onClick={logout} aria-label="Logout" className="w-10 h-10 rounded-2xl flex items-center justify-center text-white/20 hover:bg-red-500/10 hover:text-red-400 transition-all">
+                    <LogOut size={20} aria-hidden="true" />
                 </button>
             </aside>
 
@@ -727,7 +730,11 @@ const Dashboard3 = () => {
                     </div>
                     <div className="flex items-center gap-3">
                         {/* Profile switcher */}
-                        <button onClick={() => setShowFleet(!showFleet)}
+                        <button
+                            onClick={() => setShowFleet(!showFleet)}
+                            aria-label="Switch profile"
+                            aria-expanded={showFleet}
+                            aria-haspopup="listbox"
                             className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/5 border border-white/8 hover:border-brand/30 transition-all text-sm">
                             <div className="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center overflow-hidden">
                                 {preview ? <img src={preview} className="w-full h-full object-cover" alt="" /> : <Car size={12} className="text-brand" />}
@@ -767,7 +774,7 @@ const Dashboard3 = () => {
                 </header>
 
                 {/* ── CONTENT PANELS ── */}
-                <div className="flex-1 p-4 lg:p-6">
+                <div id="main-content" role="main" aria-label="Dashboard content" className="flex-1 p-4 lg:p-6">
                     <AnimatePresence mode="wait">
 
                         {/* ══════════ HOME ══════════ */}
@@ -1268,20 +1275,22 @@ const Dashboard3 = () => {
             </div>
 
             {/* ── MOBILE BOTTOM NAV ── */}
-            <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden flex items-center justify-around px-2 py-2 bg-[#111]/90 backdrop-blur-xl border-t border-white/5">
+            <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 z-40 lg:hidden flex items-center justify-around px-2 py-2 bg-[#111]/90 backdrop-blur-xl border-t border-white/5">
                 {TABS.map(tab => {
                     const Icon = tab.icon;
                     const active = activeTab === tab.id;
                     return (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                            aria-label={tab.label}
+                            aria-current={active ? 'page' : undefined}
                             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl flex-1 transition-all ${active ? 'bg-brand text-black' : 'text-white/25 hover:text-white/60'}`}>
-                            <Icon size={active ? 22 : 20} />
+                            <Icon size={active ? 22 : 20} aria-hidden="true" />
                             <span className={`text-[7px] font-black uppercase tracking-widest ${active ? '' : 'hidden sm:block'}`}>{tab.label}</span>
                         </button>
                     );
                 })}
             </nav>
-        </div >
+        </div>
     );
 };
 

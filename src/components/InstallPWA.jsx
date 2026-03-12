@@ -79,12 +79,18 @@ const InstallPWA = () => {
                 exit={{ y: 100, opacity: 0 }}
                 className="fixed bottom-20 lg:bottom-6 left-4 right-4 z-[9999] lg:left-auto lg:right-6 lg:w-80"
             >
-                <div className="bg-[#1a1a1c]/90 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                <div
+                    className="bg-[#1a1a1c]/90 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="install-pwa-title"
+                >
                     <button
                         onClick={dismiss}
+                        aria-label="Close install prompt"
                         className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
                     >
-                        <X size={18} />
+                        <X size={18} aria-hidden="true" />
                     </button>
 
                     <div className="flex items-center gap-3 mb-4">
@@ -92,7 +98,7 @@ const InstallPWA = () => {
                             <Smartphone size={20} />
                         </div>
                         <div>
-                            <h3 className="text-sm font-black text-white">Install ScanMyRide</h3>
+                            <h3 id="install-pwa-title" className="text-sm font-black text-white">Install ScanMyRide</h3>
                             <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Mobile Web App</p>
                         </div>
                     </div>
@@ -121,9 +127,10 @@ const InstallPWA = () => {
                                 </p>
                                 <button
                                     onClick={handleInstall}
+                                    aria-label="Install ScanMyRide app"
                                     className="w-full py-3 bg-brand text-black rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95"
                                 >
-                                    <Download size={14} /> Install Now
+                                    <Download size={14} aria-hidden="true" /> Install Now
                                 </button>
                             </div>
                         )}
