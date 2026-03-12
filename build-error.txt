@@ -7,23 +7,23 @@ transforming...
 [32mΓ£ô[39m 2234 modules transformed.
 rendering chunks...
 computing gzip size...
-[2mdist/[22m[32mindex.html                         [39m[1m[2m  5.13 kB[22m[1m[22m[2m Γöé gzip:  1.61 kB[22m
-[2mdist/[22m[35massets/index-B0MK14IX.css          [39m[1m[2m 77.03 kB[22m[1m[22m[2m Γöé gzip: 12.28 kB[22m
-[2mdist/[22m[36massets/Logo-oj6xzBTG.js            [39m[1m[2m  0.73 kB[22m[1m[22m[2m Γöé gzip:  0.46 kB[22m
-[2mdist/[22m[36massets/SEO-CsQS9bcL.js             [39m[1m[2m  1.29 kB[22m[1m[22m[2m Γöé gzip:  0.57 kB[22m
-[2mdist/[22m[36massets/InstallPWA-5UduyJQ-.js      [39m[1m[2m  4.16 kB[22m[1m[22m[2m Γöé gzip:  1.65 kB[22m
-[2mdist/[22m[36massets/Login-D6QTicwQ.js           [39m[1m[2m  5.10 kB[22m[1m[22m[2m Γöé gzip:  1.82 kB[22m
-[2mdist/[22m[36massets/Register-eGWjGEK9.js        [39m[1m[2m  5.80 kB[22m[1m[22m[2m Γöé gzip:  1.83 kB[22m
-[2mdist/[22m[36massets/ForgotPassword-Bjnv2Eqn.js  [39m[1m[2m  7.99 kB[22m[1m[22m[2m Γöé gzip:  2.54 kB[22m
-[2mdist/[22m[36massets/StylishQR-BOC2hT_4.js       [39m[1m[2m  8.86 kB[22m[1m[22m[2m Γöé gzip:  2.93 kB[22m
-[2mdist/[22m[36massets/AdminDashboard-BE-Xl1db.js  [39m[1m[2m  9.98 kB[22m[1m[22m[2m Γöé gzip:  3.25 kB[22m
-[2mdist/[22m[36massets/vendor-icons-CZvo_B0-.js    [39m[1m[2m 14.01 kB[22m[1m[22m[2m Γöé gzip:  5.31 kB[22m
+[2mdist/[22m[32mindex.html                         [39m[1m[2m  5.13 kB[22m[1m[22m[2m Γöé gzip:  1.60 kB[22m
+[2mdist/[22m[35massets/index-BgT492Tx.css          [39m[1m[2m 77.00 kB[22m[1m[22m[2m Γöé gzip: 12.27 kB[22m
+[2mdist/[22m[36massets/Logo-BKyT3dAr.js            [39m[1m[2m  0.74 kB[22m[1m[22m[2m Γöé gzip:  0.47 kB[22m
+[2mdist/[22m[36massets/SEO-asl4aXp0.js             [39m[1m[2m  1.29 kB[22m[1m[22m[2m Γöé gzip:  0.57 kB[22m
+[2mdist/[22m[36massets/InstallPWA-BB_yivt1.js      [39m[1m[2m  4.16 kB[22m[1m[22m[2m Γöé gzip:  1.65 kB[22m
+[2mdist/[22m[36massets/Login-BgTgfE91.js           [39m[1m[2m  5.10 kB[22m[1m[22m[2m Γöé gzip:  1.82 kB[22m
+[2mdist/[22m[36massets/Register-D6sh1gvU.js        [39m[1m[2m  5.80 kB[22m[1m[22m[2m Γöé gzip:  1.83 kB[22m
+[2mdist/[22m[36massets/ForgotPassword-B057cou7.js  [39m[1m[2m  7.99 kB[22m[1m[22m[2m Γöé gzip:  2.54 kB[22m
+[2mdist/[22m[36massets/StylishQR-FuA5wg1k.js       [39m[1m[2m  8.86 kB[22m[1m[22m[2m Γöé gzip:  2.93 kB[22m
+[2mdist/[22m[36massets/AdminDashboard-BAXOj4BU.js  [39m[1m[2m  9.98 kB[22m[1m[22m[2m Γöé gzip:  3.25 kB[22m
+[2mdist/[22m[36massets/vendor-icons-C_xiQ-2V.js    [39m[1m[2m 14.01 kB[22m[1m[22m[2m Γöé gzip:  5.31 kB[22m
 [2mdist/[22m[36massets/vendor-canvas-JKTFUYGS.js   [39m[1m[2m 15.15 kB[22m[1m[22m[2m Γöé gzip:  5.83 kB[22m
-[2mdist/[22m[36massets/Home-As9_oIUi.js            [39m[1m[2m 17.51 kB[22m[1m[22m[2m Γöé gzip:  4.57 kB[22m
 [2mdist/[22m[36massets/vendor-qr-CRdGxIJm.js       [39m[1m[2m 17.77 kB[22m[1m[22m[2m Γöé gzip:  6.25 kB[22m
-[2mdist/[22m[36massets/PublicProfile3-DE6GIDk0.js  [39m[1m[2m 35.11 kB[22m[1m[22m[2m Γöé gzip:  7.38 kB[22m
-[2mdist/[22m[36massets/Dashboard3-DHnoBBTB.js      [39m[1m[2m 53.90 kB[22m[1m[22m[2m Γöé gzip: 14.55 kB[22m
+[2mdist/[22m[36massets/Home-CaDc_PW5.js            [39m[1m[2m 17.86 kB[22m[1m[22m[2m Γöé gzip:  4.75 kB[22m
+[2mdist/[22m[36massets/PublicProfile3-D4ljIu4T.js  [39m[1m[2m 35.11 kB[22m[1m[22m[2m Γöé gzip:  7.37 kB[22m
+[2mdist/[22m[36massets/Dashboard3-Ddtq8NM3.js      [39m[1m[2m 53.90 kB[22m[1m[22m[2m Γöé gzip: 14.54 kB[22m
 [2mdist/[22m[36massets/vendor-react-LcDoB9KA.js    [39m[1m[2m 66.02 kB[22m[1m[22m[2m Γöé gzip: 23.05 kB[22m
-[2mdist/[22m[36massets/vendor-motion-C3Y88ZJR.js   [39m[1m[2m126.77 kB[22m[1m[22m[2m Γöé gzip: 41.92 kB[22m
-[2mdist/[22m[36massets/index-6aYRZk2H.js           [39m[1m[2m227.52 kB[22m[1m[22m[2m Γöé gzip: 75.02 kB[22m
-[32mΓ£ô built in 27.86s[39m
+[2mdist/[22m[36massets/vendor-motion-DIG5dlI7.js   [39m[1m[2m127.23 kB[22m[1m[22m[2m Γöé gzip: 42.08 kB[22m
+[2mdist/[22m[36massets/index-CGPk9rwH.js           [39m[1m[2m227.52 kB[22m[1m[22m[2m Γöé gzip: 75.01 kB[22m
+[32mΓ£ô built in 15.16s[39m

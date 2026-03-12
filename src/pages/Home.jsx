@@ -1,16 +1,25 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { QrCode, Shield, Zap, ArrowRight, Smartphone, Car, User, Download, Eye, CheckCircle, Star, ChevronRight } from 'lucide-react';
+import { LazyMotion, domAnimation, m } from 'framer-motion';
+import { QrCode, Shield, Zap, ArrowRight, Smartphone, Car, User, Download, Eye, CheckCircle, Star } from 'lucide-react';
 import Logo from '../components/Logo';
 import SEO from '../components/SEO';
 
-/* ── tiny animation helpers ── */
+/* ── tiny animation helpers (used for below-fold sections only) ── */
 const fadeUp = (delay = 0) => ({
     initial: { opacity: 0, y: 18 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true, amount: 0.1 },
     transition: { duration: 0.35, delay }
 });
+
+/* ── Pure CSS hero fade-in — zero JS animation engine cost on FCP ── */
+const heroStyle = {
+    animation: 'smrFadeUp 0.45s ease both',
+};
+const heroStyle2 = {
+    animation: 'smrFadeUp 0.45s ease 0.1s both',
+};
 
 /* ─────────────── MOCK PHONE SNAPSHOT ─────────────── */
 const PhoneMockup = ({ screen }) => (
@@ -30,8 +39,8 @@ const ScanScreen = () => (
             <div className="w-20 h-20 bg-brand rounded-2xl flex items-center justify-center shadow-[0_10px_20px_rgba(244,176,11,0.3)]">
                 <QrCode size={50} className="text-black" />
             </div>
-            <p className="text-[8px] font-black uppercase tracking-widest text-amber-800">Scan QR Code</p>
-            <p className="text-[7px] text-center text-amber-600 font-bold">Use your camera app to scan the sticker on the car windshield</p>
+            <p className="text-[8px] font-black uppercase tracking-widest text-amber-900">Scan QR Code</p>
+            <p className="text-[7px] text-center text-amber-800 font-bold">Use your camera app to scan the sticker on the car windshield</p>
         </div>
         <div className="h-1 bg-brand" />
         <div className="bg-white p-3 flex items-center gap-2">
@@ -53,7 +62,7 @@ const ProfileScreen = () => (
         </div>
         <div className="pt-8 px-3 flex flex-col items-center gap-1">
             <p className="text-[9px] font-black uppercase tracking-tight text-amber-900">Shivansh Sharma</p>
-            <p className="text-[7px] text-amber-600 font-bold">Matte Black Mustang GT500 • CAR</p>
+            <p className="text-[7px] text-amber-800 font-bold">Matte Black Mustang GT500 • CAR</p>
             <div className="w-full h-[1px] bg-brand/20 my-2" />
             <div className="w-full grid grid-cols-2 gap-1">
                 {['📞 Call Owner', '🚨 Emergency', '📸 Instagram', '💼 LinkedIn'].map(item => (
@@ -89,6 +98,12 @@ const DashboardScreen = () => (
 
 /* ─────────────── MAIN PAGE ─────────────── */
 const Home = () => {
+    // ✅ Defer heavy phone mockup DOM until after first paint
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        const id = requestAnimationFrame(() => setMounted(true));
+        return () => cancelAnimationFrame(id);
+    }, []);
     const steps = [
         {
             number: '01',
@@ -130,213 +145,216 @@ const Home = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)]">
-            <SEO
-                title="ScanMyRide | Smart Digital Car Identity & QR Stickers"
-                description="Create a smart QR profile for your car. Stick a QR sticker on your windshield — anyone can scan to see your contact, car specs, socials & emergency info."
-                path="/"
-            />
+        <LazyMotion features={domAnimation}>
+            <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)]">
+                {/* Inject CSS keyframe for hero fade-in once */}
+                <style>{`@keyframes smrFadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }`}</style>
+                <SEO
+                    title="ScanMyRide | Smart Digital Car Identity & QR Stickers"
+                    description="Create a smart QR profile for your car. Stick a QR sticker on your windshield — anyone can scan to see your contact, car specs, socials & emergency info."
+                    path="/"
+                />
 
-            {/* ── Fixed yellow glow bg ── */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-5%] right-[-5%] w-[45%] h-[45%] bg-brand/10 blur-[100px] rounded-full" />
-                <div className="absolute bottom-[10%] left-[-5%] w-[40%] h-[40%] bg-brand/8 blur-[100px] rounded-full" />
-            </div>
-
-            {/* ── NAVBAR ── */}
-            <nav aria-label="Main navigation" className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-brand/15 px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
-                {/* Logo — never shrinks */}
-                <div className="flex-shrink-0">
-                    <Logo />
+                {/* ── Fixed yellow glow bg ── */}
+                <div className="fixed inset-0 z-0 pointer-events-none">
+                    <div className="absolute top-[-5%] right-[-5%] w-[45%] h-[45%] bg-brand/10 blur-[100px] rounded-full" />
+                    <div className="absolute bottom-[10%] left-[-5%] w-[40%] h-[40%] bg-brand/8 blur-[100px] rounded-full" />
                 </div>
 
-                {/* Right side — all items, collapse gracefully */}
-                <div className="flex items-center gap-2 sm:gap-5 flex-shrink-0">
-                    <a href="#how-it-works" className="hidden md:block text-[11px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-60 hover:text-brand hover:opacity-100 transition-all">How It Works</a>
-                    <a href="#features" className="hidden md:block text-[11px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-60 hover:text-brand hover:opacity-100 transition-all">Features</a>
-                    <Link to="/login" className="hidden sm:block text-[11px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-60 hover:text-brand hover:opacity-100 transition-all whitespace-nowrap">Login</Link>
-                    <Link to="/register" className="bg-brand text-black px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-black text-[10px] sm:text-[11px] uppercase tracking-widest hover:brightness-110 transition-all shadow-[0_8px_20px_-5px_rgba(244,176,11,0.4)] whitespace-nowrap">
-                        Get Started →
-                    </Link>
-                </div>
-            </nav>
+                {/* ── NAVBAR ── */}
+                <nav aria-label="Main navigation" className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-brand/15 px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
+                    {/* Logo — never shrinks */}
+                    <div className="flex-shrink-0">
+                        <Logo />
+                    </div>
 
-            <main id="main-content">
-                {/* ── HERO ── */}
-                <section className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 pt-16 sm:pt-28 pb-20 sm:pb-32 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand/10 border border-brand/30 text-amber-700 font-black text-[10px] uppercase tracking-[0.2em] mb-8">
-                            <Zap size={12} className="animate-pulse" /> Smart Digital Identity for Your Vehicle
-                        </div>
-                        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-6 uppercase">
-                            Your Car.<br />
-                            <span className="text-brand">One Scan.</span><br />
-                            Everything.
-                        </h1>
-                        <p className="text-lg sm:text-xl text-[var(--text-color)] opacity-55 font-bold max-w-2xl mx-auto mb-10 leading-relaxed">
-                            ScanMyRide creates a smart QR profile for your vehicle. Stick it on your windshield — let anyone scan to see your contact, car specs, socials, and emergency info instantly.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link to="/register" className="bg-brand text-black px-8 py-4 rounded-2xl font-black text-lg shadow-[0_15px_40px_-10px_rgba(244,176,11,0.5)] hover:brightness-110 transition-all flex items-center justify-center gap-3 group">
-                                Create My Profile
-                                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                            <a href="#how-it-works" className="bg-white text-[var(--text-color)] border-2 border-brand/30 px-8 py-4 rounded-2xl font-black text-lg hover:border-brand transition-all flex items-center justify-center gap-3">
-                                See How It Works
-                            </a>
-                        </div>
-                    </motion.div>
+                    {/* Right side — all items, collapse gracefully */}
+                    <div className="flex items-center gap-2 sm:gap-5 flex-shrink-0">
+                        <a href="#how-it-works" className="hidden md:block text-[11px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-80 hover:text-brand hover:opacity-100 transition-all">How It Works</a>
+                        <a href="#features" className="hidden md:block text-[11px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-80 hover:text-brand hover:opacity-100 transition-all">Features</a>
+                        <Link to="/login" className="hidden sm:block text-[11px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-80 hover:text-brand hover:opacity-100 transition-all whitespace-nowrap">Login</Link>
+                        <Link to="/register" className="bg-brand text-black px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-black text-[10px] sm:text-[11px] uppercase tracking-widest hover:brightness-110 transition-all shadow-[0_8px_20px_-5px_rgba(244,176,11,0.4)] whitespace-nowrap">
+                            Get Started →
+                        </Link>
+                    </div>
+                </nav>
 
-                    {/* Hero Visual – 3 phones side by side */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: 0.1 }}
-                        className="mt-20 flex items-end justify-center gap-4 sm:gap-8"
-                    >
-                        <div className="opacity-60 scale-90 -rotate-6 hidden sm:block">
-                            <PhoneMockup screen={<DashboardScreen />} />
+                <main id="main-content">
+                    {/* ── HERO ── */}
+                    <section className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 pt-16 sm:pt-28 pb-20 sm:pb-32 text-center">
+                        {/* ── Hero text: pure CSS animation, no JS engine on FCP ── */}
+                        <div style={heroStyle}>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand/10 border border-brand/30 text-amber-700 font-black text-[10px] uppercase tracking-[0.2em] mb-8">
+                                <Zap size={12} className="animate-pulse" /> Smart Digital Identity for Your Vehicle
+                            </div>
+                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-6 uppercase">
+                                Your Car.<br />
+                                <span className="text-amber-600">One Scan.</span><br />
+                                Everything.
+                            </h1>
+                            <p className="text-lg sm:text-xl text-[var(--text-color)] font-bold max-w-2xl mx-auto mb-10 leading-relaxed">
+                                ScanMyRide creates a smart QR profile for your vehicle. Stick it on your windshield — let anyone scan to see your contact, car specs, socials, and emergency info instantly.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <Link to="/register" className="bg-brand text-black px-8 py-4 rounded-2xl font-black text-lg shadow-[0_15px_40px_-10px_rgba(244,176,11,0.5)] hover:brightness-110 transition-all flex items-center justify-center gap-3 group">
+                                    Create My Profile
+                                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                                <a href="#how-it-works" className="bg-white text-[var(--text-color)] border-2 border-brand/30 px-8 py-4 rounded-2xl font-black text-lg hover:border-brand transition-all flex items-center justify-center gap-3">
+                                    See How It Works
+                                </a>
+                            </div>
                         </div>
-                        <div className="relative z-10 scale-110 sm:scale-115">
-                            <div className="absolute -inset-4 bg-brand/15 blur-2xl rounded-full" />
-                            <PhoneMockup screen={<ProfileScreen />} />
+
+                        {/* Hero Visual – 3 phones: deferred to after first paint */}
+                        {mounted && (
+                            <m.div
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: 0.1 }}
+                                className="mt-20 flex items-end justify-center gap-4 sm:gap-8"
+                            >
+                                <div className="opacity-60 scale-90 -rotate-6 hidden sm:block">
+                                    <PhoneMockup screen={<DashboardScreen />} />
+                                </div>
+                                <div className="relative z-10 scale-110 sm:scale-115">
+                                    <div className="absolute -inset-4 bg-brand/15 blur-2xl rounded-full" />
+                                    <PhoneMockup screen={<ProfileScreen />} />
+                                </div>
+                                <div className="opacity-60 scale-90 rotate-6 hidden sm:block">
+                                    <PhoneMockup screen={<ScanScreen />} />
+                                </div>
+                            </m.div>
+                        )}
+
+                        {/* Social proof bar */}
+                        <div style={heroStyle2} className="mt-14 flex flex-wrap items-center justify-center gap-6 text-[var(--text-color)] opacity-50 text-xs font-black uppercase tracking-widest">
+                            <span className="flex items-center gap-2"><CheckCircle size={14} className="text-brand opacity-80" /> No app needed to scan</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-2"><CheckCircle size={14} className="text-brand opacity-80" /> Free to use</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-2"><CheckCircle size={14} className="text-brand opacity-80" /> Works on any phone</span>
                         </div>
-                        <div className="opacity-60 scale-90 rotate-6 hidden sm:block">
-                            <PhoneMockup screen={<ScanScreen />} />
-                        </div>
-                    </motion.div>
+                    </section>
 
-                    {/* Social proof bar */}
-                    <motion.div {...fadeUp(0.05)} className="mt-14 flex flex-wrap items-center justify-center gap-6 text-[var(--text-color)] opacity-50 text-xs font-black uppercase tracking-widest">
-                        <span className="flex items-center gap-2"><CheckCircle size={14} className="text-brand opacity-80" /> No app needed to scan</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-2"><CheckCircle size={14} className="text-brand opacity-80" /> Free to use</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-2"><CheckCircle size={14} className="text-brand opacity-80" /> Works on any phone</span>
-                    </motion.div>
-                </section>
+                    {/* ── HOW IT WORKS ── */}
+                    <section id="how-it-works" className="relative z-10 bg-white border-y border-brand/10 py-20 sm:py-28">
+                        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+                            <motion.div {...fadeUp()} className="text-center mb-16">
+                                <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">How It Works</p>
+                                <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">3 Steps.<br className="sm:hidden" /> That's It.</h2>
+                            </motion.div>
 
-                {/* ── HOW IT WORKS ── */}
-                <section id="how-it-works" className="relative z-10 bg-white border-y border-brand/10 py-20 sm:py-28">
-                    <div className="max-w-6xl mx-auto px-6 sm:px-8">
-                        <motion.div {...fadeUp()} className="text-center mb-16">
-                            <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">How It Works</p>
-                            <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">3 Steps.<br className="sm:hidden" /> That's It.</h2>
-                        </motion.div>
-
-                        <div className="space-y-24">
-                            {steps.map((step, i) => (
-                                <motion.div
-                                    key={step.number}
-                                    {...fadeUp(0.05 * i)}
-                                    className={`flex flex-col ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12 lg:gap-20`}
-                                >
-                                    {/* Text side */}
-                                    <div className="flex-1 space-y-5">
-                                        <div className="flex items-center gap-4">
-                                            <span className="text-6xl sm:text-8xl font-black text-brand/15 leading-none">{step.number}</span>
-                                            <div className="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center">
-                                                {step.icon}
+                            <div className="space-y-24">
+                                {steps.map((step, i) => (
+                                    <motion.div
+                                        key={step.number}
+                                        {...fadeUp(0.05 * i)}
+                                        className={`flex flex-col ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12 lg:gap-20`}
+                                    >
+                                        {/* Text side */}
+                                        <div className="flex-1 space-y-5">
+                                            <div className="flex items-center gap-4">
+                                                <span className="text-6xl sm:text-8xl font-black text-brand/15 leading-none">{step.number}</span>
+                                                <div className="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center">
+                                                    {step.icon}
+                                                </div>
                                             </div>
+                                            <h3 className="text-3xl sm:text-4xl font-black tracking-tight uppercase">{step.title}</h3>
+                                            <p className="text-[var(--text-color)] opacity-60 font-bold text-lg leading-relaxed">{step.desc}</p>
+                                            <Link to="/register" className="inline-flex items-center gap-2 text-brand font-black text-sm uppercase tracking-widest hover:gap-4 transition-all">
+                                                Try It Now <ChevronRight size={16} />
+                                            </Link>
                                         </div>
-                                        <h3 className="text-3xl sm:text-4xl font-black tracking-tight uppercase">{step.title}</h3>
-                                        <p className="text-[var(--text-color)] opacity-60 font-bold text-lg leading-relaxed">{step.desc}</p>
-                                        <Link to="/register" className="inline-flex items-center gap-2 text-brand font-black text-sm uppercase tracking-widest hover:gap-4 transition-all">
-                                            Try It Now <ChevronRight size={16} />
-                                        </Link>
-                                    </div>
 
-                                    {/* Phone mockup side */}
-                                    <div className="flex-shrink-0 relative">
-                                        <div className="absolute -inset-8 bg-brand/8 blur-3xl rounded-full" />
-                                        <PhoneMockup screen={step.screen} />
-                                    </div>
-                                </motion.div>
-                            ))}
+                                        {/* Phone mockup side */}
+                                        <div className="flex-shrink-0 relative">
+                                            <div className="absolute -inset-8 bg-brand/8 blur-3xl rounded-full" />
+                                            <PhoneMockup screen={step.screen} />
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ── USE CASES ── */}
+                    <section className="relative z-10 py-20 sm:py-28">
+                        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+                            <motion.div {...fadeUp()} className="text-center mb-14">
+                                <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">Who Is It For?</p>
+                                <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">Built For Everyone<br />With A Vehicle</h2>
+                            </motion.div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {useCases.map((u, i) => (
+                                    <motion.div key={u.title} {...fadeUp(0.05 * i)} className="glass-card rounded-3xl p-8 border border-brand/15 hover:border-brand/40 transition-all group">
+                                        <div className="text-4xl mb-4">{u.icon}</div>
+                                        <h3 className="text-xl font-black uppercase tracking-tight mb-2">{u.title}</h3>
+                                        <p className="text-[var(--text-color)] opacity-55 font-bold leading-relaxed">{u.desc}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ── FEATURES ── */}
+                    <section id="features" className="relative z-10 bg-white border-y border-brand/10 py-20 sm:py-28">
+                        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+                            <motion.div {...fadeUp()} className="text-center mb-14">
+                                <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">Features</p>
+                                <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">Everything You Need,<br />Nothing You Don't</h2>
+                            </motion.div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {features.map((f, i) => (
+                                    <motion.div key={f.title} {...fadeUp(0.04 * i)} className="p-7 rounded-3xl bg-amber-50/60 border border-brand/15 hover:border-brand/40 hover:bg-amber-50 transition-all group">
+                                        <div className="w-12 h-12 bg-brand/10 border border-brand/20 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                            {f.icon}
+                                        </div>
+                                        <h3 className="text-lg font-black mb-2 uppercase tracking-tight">{f.title}</h3>
+                                        <p className="text-[var(--text-color)] opacity-55 font-bold text-sm leading-relaxed">{f.desc}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ── CTA BANNER ── */}
+                    <section className="relative z-10 py-20 sm:py-28">
+                        <div className="max-w-4xl mx-auto px-6 sm:px-8">
+                            <m.div
+                                {...fadeUp()}
+                                className="bg-brand rounded-[2.5rem] p-12 sm:p-16 text-center relative overflow-hidden shadow-[0_30px_80px_-20px_rgba(244,176,11,0.5)]"
+                            >
+                                <div className="absolute top-[-30%] right-[-10%] w-[50%] h-[80%] bg-white/10 blur-3xl rounded-full" />
+                                <h2 className="text-4xl sm:text-5xl font-black text-black tracking-tight uppercase mb-4 relative z-10">
+                                    Ready to Scan<br />Your World?
+                                </h2>
+                                <p className="text-black/60 font-bold mb-8 text-lg relative z-10">Join hundreds of car owners who already have a smart profile. Free to create, zero apps needed to scan.</p>
+                                <Link to="/register" className="inline-flex items-center gap-3 bg-black text-brand px-10 py-4 rounded-2xl font-black text-lg hover:scale-105 transition-all relative z-10 group">
+                                    Create My Free Profile
+                                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            </m.div>
+                        </div>
+                    </section>
+                </main>
+
+                {/* ── FOOTER ── */}
+                <footer className="relative z-10 border-t border-brand/15 bg-white py-12">
+                    <div className="max-w-6xl mx-auto px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <Logo />
+                        <p className="text-[var(--text-color)] opacity-60 text-[10px] font-black uppercase tracking-[0.3em] text-center">
+                            © 2024 ScanMyRide • All Rights Reserved
+                        </p>
+                        <div className="flex items-center gap-6">
+                            <Link to="/login" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-70 hover:text-brand hover:opacity-100 transition-all">Login</Link>
+                            <Link to="/register" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-70 hover:text-brand hover:opacity-100 transition-all">Sign Up</Link>
                         </div>
                     </div>
-                </section>
-
-                {/* ── USE CASES ── */}
-                <section className="relative z-10 py-20 sm:py-28">
-                    <div className="max-w-6xl mx-auto px-6 sm:px-8">
-                        <motion.div {...fadeUp()} className="text-center mb-14">
-                            <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">Who Is It For?</p>
-                            <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">Built For Everyone<br />With A Vehicle</h2>
-                        </motion.div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {useCases.map((u, i) => (
-                                <motion.div key={u.title} {...fadeUp(0.05 * i)} className="glass-card rounded-3xl p-8 border border-brand/15 hover:border-brand/40 transition-all group">
-                                    <div className="text-4xl mb-4">{u.icon}</div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight mb-2">{u.title}</h3>
-                                    <p className="text-[var(--text-color)] opacity-55 font-bold leading-relaxed">{u.desc}</p>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* ── FEATURES ── */}
-                <section id="features" className="relative z-10 bg-white border-y border-brand/10 py-20 sm:py-28">
-                    <div className="max-w-6xl mx-auto px-6 sm:px-8">
-                        <motion.div {...fadeUp()} className="text-center mb-14">
-                            <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">Features</p>
-                            <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">Everything You Need,<br />Nothing You Don't</h2>
-                        </motion.div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {features.map((f, i) => (
-                                <motion.div key={f.title} {...fadeUp(0.04 * i)} className="p-7 rounded-3xl bg-amber-50/60 border border-brand/15 hover:border-brand/40 hover:bg-amber-50 transition-all group">
-                                    <div className="w-12 h-12 bg-brand/10 border border-brand/20 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                        {f.icon}
-                                    </div>
-                                    <h3 className="text-lg font-black mb-2 uppercase tracking-tight">{f.title}</h3>
-                                    <p className="text-[var(--text-color)] opacity-55 font-bold text-sm leading-relaxed">{f.desc}</p>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* ── CTA BANNER ── */}
-                <section className="relative z-10 py-20 sm:py-28">
-                    <div className="max-w-4xl mx-auto px-6 sm:px-8">
-                        <motion.div
-                            {...fadeUp()}
-                            className="bg-brand rounded-[2.5rem] p-12 sm:p-16 text-center relative overflow-hidden shadow-[0_30px_80px_-20px_rgba(244,176,11,0.5)]"
-                        >
-                            <div className="absolute top-[-30%] right-[-10%] w-[50%] h-[80%] bg-white/10 blur-3xl rounded-full" />
-                            <h2 className="text-4xl sm:text-5xl font-black text-black tracking-tight uppercase mb-4 relative z-10">
-                                Ready to Scan<br />Your World?
-                            </h2>
-                            <p className="text-black/60 font-bold mb-8 text-lg relative z-10">Join hundreds of car owners who already have a smart profile. Free to create, zero apps needed to scan.</p>
-                            <Link to="/register" className="inline-flex items-center gap-3 bg-black text-brand px-10 py-4 rounded-2xl font-black text-lg hover:scale-105 transition-all relative z-10 group">
-                                Create My Free Profile
-                                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </motion.div>
-                    </div>
-                </section>
-            </main>
-
-            {/* ── FOOTER ── */}
-            <footer className="relative z-10 border-t border-brand/15 bg-white py-12">
-                <div className="max-w-6xl mx-auto px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <Logo />
-                    <p className="text-[var(--text-color)] opacity-35 text-[10px] font-black uppercase tracking-[0.3em] text-center">
-                        © 2024 ScanMyRide • All Rights Reserved
-                    </p>
-                    <div className="flex items-center gap-6">
-                        <Link to="/login" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-40 hover:text-brand hover:opacity-100 transition-all">Login</Link>
-                        <Link to="/register" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-color)] opacity-40 hover:text-brand hover:opacity-100 transition-all">Sign Up</Link>
-                    </div>
-                </div>
-            </footer>
-        </div>
+                </footer>
+            </div>
+        </LazyMotion>
     );
 };
 
