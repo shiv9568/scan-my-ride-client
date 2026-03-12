@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Lock, Mail, ArrowRight, KeyRound } from 'lucide-react';
 import Logo from '../components/Logo';
+import SEO from '../components/SEO';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -30,6 +31,12 @@ const Login = () => {
 
     return (
         <div className="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-6 relative overflow-hidden">
+            <SEO
+                title="Login | ScanMyRide"
+                description="Sign in to your ScanMyRide account and manage your smart car QR profile."
+                path="/login"
+                noIndex={true}
+            />
             {/* Background Decorations */}
             <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand/10 blur-[120px] rounded-full" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand/8 blur-[120px] rounded-full" />

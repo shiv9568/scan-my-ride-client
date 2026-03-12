@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Lock, Mail, User, ArrowRight } from 'lucide-react';
 import Logo from '../components/Logo';
+import SEO from '../components/SEO';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -25,6 +26,11 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-6 relative overflow-hidden">
+            <SEO
+                title="Register | ScanMyRide — Create Your Free QR Car Profile"
+                description="Join ScanMyRide for free. Create your smart QR car profile in minutes — add contact info, car specs, social links, and emergency contacts."
+                path="/register"
+            />
             {/* Background Decorations */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand/10 blur-[120px] rounded-full" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand/8 blur-[120px] rounded-full" />

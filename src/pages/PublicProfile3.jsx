@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api, { API_URL } from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCarLogoUrl } from '../components/StylishQR';
+import SEO from '../components/SEO';
 import {
     Phone, User, Briefcase, Instagram, Linkedin, MapPin,
     AlertCircle, Droplets, ChevronRight, QrCode, ShieldCheck,
@@ -876,15 +877,39 @@ const PublicProfile3 = () => {
         ? ((profile.profileImage.startsWith('http') || profile.profileImage.startsWith('data:')) ? profile.profileImage : `${API_URL}/${profile.profileImage}`)
         : null;
 
+    /* Dynamic SEO for public profile */
+    const seoTitle = profile.carName
+        ? `${profile.carName}${profile.ownerName ? ` — ${profile.ownerName}` : ''} | ScanMyRide`
+        : 'Car Profile | ScanMyRide';
+    const seoDesc = profile.carName
+        ? `Scan ${profile.carName}${profile.carCompany ? ` (${profile.carCompany})` : ''}'s ScanMyRide QR profile. View owner details, contact info, car specs and more.`
+        : 'View this car\'s ScanMyRide QR profile — contact details, specs & emergency info.';
+    const seoImage = carImg || avatarImg || undefined;
+
     /* Route to correct layout */
     if (profile.profileType === 'business') {
-        return <BusinessCard profile={profile} brand={brand} avatarImg={avatarImg} />;
+        return (
+            <>
+                <SEO title={seoTitle} description={seoDesc} path={`/p/${uniqueId}`} image={seoImage} />
+                <BusinessCard profile={profile} brand={brand} avatarImg={avatarImg} />
+            </>
+        );
     }
     if (profile.profileType === 'portfolio') {
-        return <PortfolioCard profile={profile} brand={brand} avatarImg={avatarImg} />;
+        return (
+            <>
+                <SEO title={seoTitle} description={seoDesc} path={`/p/${uniqueId}`} image={seoImage} />
+                <PortfolioCard profile={profile} brand={brand} avatarImg={avatarImg} />
+            </>
+        );
     }
     /* Default: car / undefined → vehicle profile (backward compatible) */
-    return <VehicleProfile profile={profile} brand={brand} carImg={carImg} avatarImg={avatarImg} />;
+    return (
+        <>
+            <SEO title={seoTitle} description={seoDesc} path={`/p/${uniqueId}`} image={seoImage} />
+            <VehicleProfile profile={profile} brand={brand} carImg={carImg} avatarImg={avatarImg} />
+        </>
+    );
 };
 
 export default PublicProfile3;

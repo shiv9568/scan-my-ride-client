@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useContext } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
@@ -34,33 +35,35 @@ function App() {
   document.documentElement.setAttribute('data-theme', 'carbon');
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/dashboard" element={
-              <PrivateRoute>
-                <ErrorBoundary>
-                  <Dashboard3 />
-                </ErrorBoundary>
-              </PrivateRoute>
-            } />
+    <HelmetProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/dashboard" element={
+                <PrivateRoute>
+                  <ErrorBoundary>
+                    <Dashboard3 />
+                  </ErrorBoundary>
+                </PrivateRoute>
+              } />
 
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            } />
-            <Route path="/p/:uniqueId" element={<PublicProfile3 />} />
-          </Routes>
-          <InstallPWA />
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+              <Route path="/admin" element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              } />
+              <Route path="/p/:uniqueId" element={<PublicProfile3 />} />
+            </Routes>
+            <InstallPWA />
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 

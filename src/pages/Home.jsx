@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { QrCode, Shield, Zap, ArrowRight, Smartphone, Car, User, Download, Eye, CheckCircle, Star, ChevronRight } from 'lucide-react';
 import Logo from '../components/Logo';
+import SEO from '../components/SEO';
 
 /* ── tiny animation helpers ── */
 const fadeUp = (delay = 0) => ({
@@ -130,6 +131,11 @@ const Home = () => {
 
     return (
         <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)]">
+            <SEO
+                title="ScanMyRide | Smart Digital Car Identity & QR Stickers"
+                description="Create a smart QR profile for your car. Stick a QR sticker on your windshield — anyone can scan to see your contact, car specs, socials & emergency info."
+                path="/"
+            />
 
             {/* ── Fixed yellow glow bg ── */}
             <div className="fixed inset-0 z-0 pointer-events-none">
