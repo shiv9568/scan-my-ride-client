@@ -42,8 +42,8 @@ const Register = () => {
             >
                 <div className="flex flex-col items-center mb-10">
                     <Logo className="w-24 h-24 mb-6" iconOnly={true} />
-                    <h1 className="text-4xl font-black text-[var(--text-color)] tracking-tight uppercase leading-none">JOIN THE <span className="text-brand">FLEET</span></h1>
-                    <p className="text-[var(--text-color)] opacity-50 mt-3 font-bold uppercase tracking-widest text-xs italic">Establish Your Digital Identity</p>
+                    <h1 className="text-4xl font-black text-[var(--text-color)] tracking-tight uppercase leading-none">JOIN THE <span className="text-amber-400">FLEET</span></h1>
+                    <p className="text-[var(--text-color)] opacity-75 mt-3 font-bold uppercase tracking-widest text-xs italic">Establish Your Digital Identity</p>
                 </div>
 
                 <div className="glass-card rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-10 relative overflow-hidden">
@@ -57,10 +57,11 @@ const Register = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-3 group">
-                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Pilot Full Name</label>
+                            <label htmlFor="reg-name" className="text-[10px] font-black text-[var(--text-color)] opacity-70 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Pilot Full Name</label>
                             <div className="relative">
-                                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} />
+                                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} aria-hidden="true" />
                                 <input
+                                    id="reg-name"
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
@@ -72,10 +73,11 @@ const Register = () => {
                         </div>
 
                         <div className="space-y-3 group">
-                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Email</label>
+                            <label htmlFor="reg-email" className="text-[10px] font-black text-[var(--text-color)] opacity-70 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Email</label>
                             <div className="relative">
-                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} />
+                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} aria-hidden="true" />
                                 <input
+                                    id="reg-email"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -87,10 +89,11 @@ const Register = () => {
                         </div>
 
                         <div className="space-y-3 group">
-                            <label className="text-[10px] font-black text-[var(--text-color)] opacity-50 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Secure Password</label>
+                            <label htmlFor="reg-password" className="text-[10px] font-black text-[var(--text-color)] opacity-70 uppercase tracking-[0.2em] ml-1 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors">Secure Password</label>
                             <div className="relative">
-                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} />
+                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-color)] opacity-40 group-focus-within:text-brand group-focus-within:opacity-100 transition-colors" size={20} aria-hidden="true" />
                                 <input
+                                    id="reg-password"
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}

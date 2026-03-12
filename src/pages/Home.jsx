@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
-import { QrCode, Shield, Zap, ArrowRight, Smartphone, Car, User, Download, Eye, CheckCircle, Star } from 'lucide-react';
+import { QrCode, Shield, Zap, ArrowRight, Smartphone, Car, User, Download, Eye, CheckCircle, Star, ChevronRight } from 'lucide-react';
 import Logo from '../components/Logo';
 import SEO from '../components/SEO';
 
@@ -241,14 +241,14 @@ const Home = () => {
                     {/* ── HOW IT WORKS ── */}
                     <section id="how-it-works" className="relative z-10 bg-white border-y border-brand/10 py-20 sm:py-28">
                         <div className="max-w-6xl mx-auto px-6 sm:px-8">
-                            <motion.div {...fadeUp()} className="text-center mb-16">
+                            <m.div {...fadeUp()} className="text-center mb-16">
                                 <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">How It Works</p>
                                 <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">3 Steps.<br className="sm:hidden" /> That's It.</h2>
-                            </motion.div>
+                            </m.div>
 
                             <div className="space-y-24">
                                 {steps.map((step, i) => (
-                                    <motion.div
+                                    <m.div
                                         key={step.number}
                                         {...fadeUp(0.05 * i)}
                                         className={`flex flex-col ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12 lg:gap-20`}
@@ -273,7 +273,7 @@ const Home = () => {
                                             <div className="absolute -inset-8 bg-brand/8 blur-3xl rounded-full" />
                                             <PhoneMockup screen={step.screen} />
                                         </div>
-                                    </motion.div>
+                                    </m.div>
                                 ))}
                             </div>
                         </div>
@@ -282,17 +282,17 @@ const Home = () => {
                     {/* ── USE CASES ── */}
                     <section className="relative z-10 py-20 sm:py-28">
                         <div className="max-w-6xl mx-auto px-6 sm:px-8">
-                            <motion.div {...fadeUp()} className="text-center mb-14">
+                            <m.div {...fadeUp()} className="text-center mb-14">
                                 <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">Who Is It For?</p>
                                 <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">Built For Everyone<br />With A Vehicle</h2>
-                            </motion.div>
+                            </m.div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 {useCases.map((u, i) => (
-                                    <motion.div key={u.title} {...fadeUp(0.05 * i)} className="glass-card rounded-3xl p-8 border border-brand/15 hover:border-brand/40 transition-all group">
+                                    <m.div key={u.title} {...fadeUp(0.05 * i)} className="glass-card rounded-3xl p-8 border border-brand/15 hover:border-brand/40 transition-all group">
                                         <div className="text-4xl mb-4">{u.icon}</div>
                                         <h3 className="text-xl font-black uppercase tracking-tight mb-2">{u.title}</h3>
                                         <p className="text-[var(--text-color)] opacity-55 font-bold leading-relaxed">{u.desc}</p>
-                                    </motion.div>
+                                    </m.div>
                                 ))}
                             </div>
                         </div>
@@ -301,19 +301,19 @@ const Home = () => {
                     {/* ── FEATURES ── */}
                     <section id="features" className="relative z-10 bg-white border-y border-brand/10 py-20 sm:py-28">
                         <div className="max-w-6xl mx-auto px-6 sm:px-8">
-                            <motion.div {...fadeUp()} className="text-center mb-14">
+                            <m.div {...fadeUp()} className="text-center mb-14">
                                 <p className="text-brand font-black text-[11px] uppercase tracking-[0.3em] mb-3">Features</p>
                                 <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">Everything You Need,<br />Nothing You Don't</h2>
-                            </motion.div>
+                            </m.div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {features.map((f, i) => (
-                                    <motion.div key={f.title} {...fadeUp(0.04 * i)} className="p-7 rounded-3xl bg-amber-50/60 border border-brand/15 hover:border-brand/40 hover:bg-amber-50 transition-all group">
+                                    <m.div key={f.title} {...fadeUp(0.04 * i)} className="p-7 rounded-3xl bg-amber-50/60 border border-brand/15 hover:border-brand/40 hover:bg-amber-50 transition-all group">
                                         <div className="w-12 h-12 bg-brand/10 border border-brand/20 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                                             {f.icon}
                                         </div>
                                         <h3 className="text-lg font-black mb-2 uppercase tracking-tight">{f.title}</h3>
                                         <p className="text-[var(--text-color)] opacity-55 font-bold text-sm leading-relaxed">{f.desc}</p>
-                                    </motion.div>
+                                    </m.div>
                                 ))}
                             </div>
                         </div>
