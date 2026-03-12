@@ -65,10 +65,23 @@
     }
     </script>
 
-    <!-- ✅ Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <!-- ✅ Fonts — non-blocking async load (no render delay) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Load fonts asynchronously: media="print" loads without blocking, onload switches to "all" -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@100..900&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <!-- Fallback for browsers with JS disabled -->
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+    </noscript>
+
+    <!-- ✅ DNS prefetch for API server -->
+    <link rel="dns-prefetch" href="https://car-test-app.onrender.com" />
   </head>
   <body>
     <div id="root"></div>
