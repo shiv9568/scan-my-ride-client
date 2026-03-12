@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-const BASE_URL = 'https://scanmyride.in';
+const BASE_URL = 'https://scanmyride.vercel.app';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
 
 /**

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /dashboard
 Disallow: /admin
 
-Sitemap: https://scanmyride.vercel.appsitemap.xml
+Sitemap: https://scanmyride.vercel.app/sitemap.xml
