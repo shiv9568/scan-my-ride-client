@@ -36,7 +36,12 @@
     <priority>0.5</priority>
   </url>
 
-  <!-- Public Car Profile (dynamic - example) 
-       NOTE: Add individual /p/:uniqueId URLs here after generating real vehicle QR pages -->
+  <!-- Dashboard (authenticated) -->
+  <url>
+    <loc>https://scanmyride.vercel.app/dashboard</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 
 </urlset>

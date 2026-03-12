@@ -31,6 +31,7 @@ const SEO = ({
             <meta name="description" content={description} />
             <meta name="robots" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />
             <link rel="canonical" href={canonical} />
+            <link rel="alternate" hreflang="en" href={canonical} />
 
             {/* Open Graph */}
             <meta property="og:type" content="website" />
@@ -39,6 +40,7 @@ const SEO = ({
             <meta property="og:description" content={description} />
             <meta property="og:image" content={ogImage} />
             <meta property="og:site_name" content="ScanMyRide" />
+            <meta property="og:locale" content="en_IN" />
 
             {/* Twitter Card */}
             <meta name="twitter:card" content="summary_large_image" />
@@ -46,6 +48,10 @@ const SEO = ({
             <meta name="twitter:title" content={title} />
             <meta name="twitter:description" content={description} />
             <meta name="twitter:image" content={ogImage} />
+
+            {/* Additional SEO */}
+            <meta name="theme-color" content="#f4b00b" />
+            <meta name="revisit-after" content="7 days" />
         </Helmet>
     );
 };
